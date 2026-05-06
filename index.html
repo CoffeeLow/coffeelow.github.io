@@ -153,8 +153,8 @@ function sfc32(a, b, c, d) {
             console.log("Nach rechts!");
             break;
         case "Enter":
-      document.getElementById ("x").innerHTML += upFirst(document.getElementById("y").value) + " <br/>"
-      document.getElementById("x").innerHTML += upFirst(sentence()) + " <br/>"
+      document.getElementById ("x").innerHTML += upFirst(document.getElementById("y").value) + " <br/> "
+      document.getElementById("x").innerHTML += upFirst(sentence()) + " <br/> "
       document.getElementById("y").value = ""
 
         seed = cyrb128(document.getElementById ("x").innerHTML)
@@ -171,7 +171,7 @@ function sfc32(a, b, c, d) {
 });
 
   
-  document.getElementById("x").innerHTML = new Date() + " <br/>"
+  document.getElementById("x").innerHTML = new Date() + " <br/>Textabenteuer: „Rainbow Six in Vietnam <br/> "
 
   
   </script>  
