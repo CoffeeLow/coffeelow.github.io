@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
+  <title>Hello, World!</title>
+  <script src="md5.min.js"></script>
+</head>
+<body>
+  das einzige Paradies ist nur Allah 
+  
+  
+  <div id="google_translate_element"></div>
+<script type="text/javascript">
+  function googleTranslateElementInit() {
+    new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+  }
+</script>
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+  
+  <div id='x' style='border-width:5px;width:90%;height:90%;border-color:black;border-style:outset'>
+  </div>
+  <input type='text' id='y'  style="width:90%">
+  
+  <script>
+  
+  var seed = 0
+  
+  function initrand() {
+    var s = document.getElementById("x").innerHTML
+    var h = md5(s)
+    var x = 0
+    for(let i = 0;i < h.length;++i)
+      x += h.charCodeAt(i)
+    seed = x
+  }
+  
+  Math.random = function() {
+     seed += 1
+    return (Math.sin(1234 * seed) + 1) / 2
+  }
+  
+  function choose(xs) {
+    return xs[Math.floor(xs.length * Math.random())]
+  }
+  
+  let verbs = [
+  "read","write","drive",
+  "paint"
+  ]
+  
+  let nouns = [
+  "car","baer","house",
+  "tree","bird","animal",
+  "nose","street"
+  ]
+  
+  let adjectives = [
+  "flat","black","white",
+  "steep","big","small"
+  ]
+  
+  
+  function subject(plural) {
+    if(plural){
+     return  choose(adjectives)
+        + " "
+        + choose(nouns) + "s"
+    }  else{
+         return choose(adjectives)
+        + " "
+        + choose(nouns)
+    }
+  }
+  
+  function predicate(plural) {
+    if(!plural){
+     return choose(adjectives)
+        + "ly "
+        + choose(verbs) + "s"
+    } else{
+         return   choose(adjectives)
+        + "ly "
+        + choose(verbs)
+    }
+  }
+  
+  function sentence() {
+    let plural0 = Math.random() < 0.5
+    let plural1 = Math.random() < 0.5
+      
+    
+    return subject(plural0)
+      + " " + predicate(plural0)
+      + " " + subject(plural1)
+  }
+  
+  
+  document.getElementById("y").addEventListener("keydown", function(event) {
+    switch(event.key) {
+        case "ArrowLeft":
+            // Torwart nach links bewegen
+            console.log("Nach links!");
+            break;
+        case "ArrowRight":
+            // Torwart nach rechts bewegen
+            console.log("Nach rechts!");
+            break;
+        case "Enter":
+      document.getElementById ("x").innerHTML +=
+      document.getElementById("y").value + "<br/>"
+      document.getElementById("x").innerHTML += sentence() + "<br/>"
+      document.getElementById("y").value = ""
+      initrand()
+      void(0)
+      // Aktion / Schießen
+            console.log("Enter gedrückt");
+            break;
+        default:
+            return; // Beendet die Funktion, wenn eine andere Taste gedrückt wurde
+    }
+    
+    // Verhindert, dass die Seite scrollt, wenn man die Pfeiltasten drückt
+    event.preventDefault();
+});
+
+  
+  document.getElementById("x").innerHTML = new Date() + "<br/>"
+  initrand()
+  
+  </script>  
+  
+</body>
+</html>
+
