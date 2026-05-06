@@ -126,9 +126,9 @@ function sfc32(a, b, c, d) {
     let plural1 = Math.random() < 0.5
       
     
-    return subject(plural0)
+    return prefix(plural0) + " " + subject(plural0)
       + " " + predicate(plural0)
-      + " " + subject(plural1)
+      + " " + prefix(plural1) + " " + subject(plural1)
   }
   
   
