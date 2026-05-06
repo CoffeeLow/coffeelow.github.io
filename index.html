@@ -108,7 +108,19 @@ function sfc32(a, b, c, d) {
         + choose(verbs)
     }
   }
-  
+
+    function prefix(plural) {
+      let x = choose("","only") + " "
+
+      
+      if(plural)
+        x += choose("several","many","few","a few")
+      else
+        x += choose("a","the") + " " + choose("single","")
+
+      return x
+    }
+    
   function sentence() {
     let plural0 = Math.random() < 0.5
     let plural1 = Math.random() < 0.5
