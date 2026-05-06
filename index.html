@@ -110,13 +110,13 @@ function sfc32(a, b, c, d) {
   }
 
     function prefix(plural) {
-      let x = choose("","only") + " "
+      let x = choose(["","only"]) + " "
 
       
       if(plural)
-        x += choose("several","many","few","a few")
+        x += choose(["several","many","few","a few"])
       else
-        x += choose("a","the") + " " + choose("single","")
+        x += choose(["a","the"]) + " " + choose(["single",""])
 
       return x
     }
