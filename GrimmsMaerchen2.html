@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
+  <title>Markov Würfel</title>
+
+  <script>
+    
+		
+		
+let myseed = 65000 * Math.random()
+let randcoeffs = []
+for(let i = 0;i < 5;++i) randcoeffs.push(Math.random())
+
+Math.random = function() {
+	let s = myseed
+	for(let i = 0;i < randcoeffs.length;++i) s += 65000 * randcoeffs[i] * Math.pow((Math.sin(myseed) + 1) / 2,i)
+	myseed = s % 65000
+	return myseed / 65000.0
+}
+
+    
+    let seed = 0
+  
+  function initrand(s) {
+
+   
+    var x = 0
+    for(let i = 0;i < s.length;++i)
+      x += s.charCodeAt(i)
+    seed = x % 65000
+    	
+    	for(let i = 0;i < randcoeffs.length;++i) randcoeffs[i] = Math.random()
+  }
+  
+  initrand(new Date() + "")
+  
+  Math.random = function() {
+     seed += 1
+    return 0.99 * (Math.sin(1234 * seed) + 1) / 2
+  }
+  
+    
+    
+    
+  
+  function words(str) {
+    let ws = []
+    let w = ""
+    let s = str.trim()
+    
+    for(let i = 0;i < s.length;++i) {
+     if(s.charAt(i).trim().length == 0) {
+         while(s.charAt(i).trim().length == 0) ++i
+       
+         w = w.toLowerCase().replace(/[^a-zäöüß]/g,"")
+         if(w.length > 0)
+           ws.push(w)
+       
+       w = ""
+     }
+      w += s.charAt(i)
+    }
+      ws.push(w)
+     
+      return ws
+  }
+  
+  
+  function markov(str) {
+    let ws = words(str)
+    let mv = []
+    
+    for(let i = 0;i < ws.length - 3;++i) {
+      let l = []
+      for(let j = 0;j < 3;j++) {
+        l.push(ws[i + j])
+      }
+        mv.push(l)
+    }
+      
+      return mv
+  }
+  
+  let mkv
+  let current
+  
+  
+  function doRead() {
+    let st = ""
+    let c0 = current
+    
+    for(let k = 0;k < 100;++k) {
+      
+     
+    let cs = []
+    mkv.forEach((m) => {
+      let found = true
+      for(let i = 0;i < m.length - 1;++i)
+        if(current[i + 1] != m[i])
+          found = false
+        
+      if(found) cs.push(m)
+    }
+    )
+    if(cs.length > 0) 
+    current = cs[Math.floor( Math.random() * cs.length)]
+      else
+      current = mkv[Math.floor(Math.random() * mkv.length)]
+      
+      st += current[0] + " "
+   
+    
+    
+      
+      /*else{
+      k = 0
+      st = ""
+      current = c0
+    }*/
+    }
+      
+      
+      const nachricht = new SpeechSynthesisUtterance(st)
+      nachricht.rate = 0.5
+        window.speechSynthesis.speak(nachricht)
+
+        initrand(st)
+      
+      window.setTimeout(doRead,1)
+  }
+  
+  function read() {
+    mkv = markov(document.getElementById("x").innerHTML)
+    current = mkv[Math.floor(Math.random() * mkv.length)]
+    doRead()
+  }
+  </script>
+</head>
+<body>
+  
+  <button onclick="read()">märchen vorlesen</button>
+  
+  <pre id="x">
+
+
+Grimm Märchen/Der Froschkönig oder der eiserne Heinrich
+www.grimmsmaerchen.net
+Hier gibt es das Grimms Märchen auch als Hörspiel Download ...
+1. Der Froschkönig oder der eiserne Heinrich
+In den alten Zeiten, wo das Wünschen noch geholfen hat, lebte ein König, dessen Töchter waren alle schön, aber die jüngste war so schön, daß die Sonne selber, die doch so vieles gesehen hat, sich verwunderte so oft sie ihr ins Gesicht schien. Nahe bei dem Schlosse des Königs lag ein großer dunkler Wald, und in dem Walde unter einer alten Linde war ein Brunnen: wenn nun der Tag recht heiß war, so ging das Königskind hinaus in den Wald und setzte sich an den Rand des kühlen Brunnens: und wenn sie Langeweile hatte, so nahm sie eine goldene Kugel, warf sie in die Höhe und fieng sie wieder; und das war ihr liebstes Spielwerk.
+
+Nun trug es sich einmal zu, daß die goldene Kugel der Königstochter nicht in ihr Händchen fiel, das sie in die Höhe gehalten hatte, sondern vorbei auf die Erde schlug und geradezu ins Wasser hinein rollte. Die Königstochter folgte ihr mit den Augen nach, aber die Kugel verschwand, und der Brunnen war tief, so tief daß man keinen Grund sah. Da fieng sie an zu weinen und weinte immer lauter und konnte sich gar nicht trösten. Und wie sie so klagte, rief ihr jemand zu „was hast du vor, Königstochter, du schreist ja daß sich ein Stein erbarmen möchte.“ Sie sah sich um, woher die Stimme käme, da erblickte sie einen Frosch, der seinen dicken häßlichen Kopf aus dem Wasser streckte. „Ach, du bists, alter Wasserpatscher,“ sagte sie, „ich weine über meine goldene Kugel, die mir in den Brunnen hinab gefallen ist.“ „Sei still und weine nicht,“ antwortete der Frosch, „ich kann wohl Rath
+schaffen, aber was gibst du mir, wenn ich dein Spielwerk wieder heraufhole?“ „Was du haben willst, lieber Frosch,“ sagte sie, „meine Kleider, meine Perlen und Edelsteine, auch noch die goldene Krone, die ich trage.“ Der Frosch antwortete „deine Kleider, deine Perlen und Edelsteine, und deine goldene Krone, die mag ich nicht: aber wenn du mich lieb haben willst, und ich soll dein Geselle und Spielkamerad sein, an deinem Tischlein neben dir sitzen, von deinem goldenen Tellerlein essen, aus deinem Becherlein trinken, in deinem Bettlein schlafen: wenn du mir das versprichst, so will ich hinunter steigen und dir die goldene Kugel wieder herauf holen.“ „Ach ja,“ sagte sie, „ich verspreche dir alles, was du willst, wenn du mir nur die Kugel wieder bringst.“ Sie dachte aber „was der einfältige Frosch schwätzt, der sitzt im Wasser bei seines Gleichen und quackt, und kann keines Menschen Geselle sein.“
+
+Der Frosch, als er die Zusage erhalten hatte, tauchte seinen Kopf unter, sank hinab und über ein Weilchen kam er wieder herauf gerudert, hatte die Kugel im Maul und warf sie ins Gras. Die Königstochter war voll Freude, als sie ihr schönes Spielwerk wieder erblickte, hob es auf und sprang damit fort. „Warte, warte,“ rief der Frosch, „nimm mich mit, ich kann nicht so laufen wie du.“ Aber was half ihm daß er ihr sein quack quack so laut nachschrie als er konnte! sie hörte nicht darauf, eilte nach Haus und hatte bald den armen Frosch vergessen, der wieder in seinen Brunnen hinab steigen mußte.
+
+Am andern Tage, als sie mit dem König und allen Hofleuten sich zur Tafel gesetzt hatte und von ihrem goldenen Tellerlein aß, da kam, plitsch platsch, plitsch platsch, etwas die Marmortreppe herauf gekrochen, und als es oben angelangt war, klopfte es an der Thür und rief „Königstochter, jüngste, mach mir auf.“ Sie lief und wollte sehen wer draußen wäre, als sie aber aufmachte,
+so saß der Frosch davor. Da warf sie die Thür hastig zu, setzte sich wieder an den Tisch, und war ihr ganz angst. Der König sah wohl daß ihr das Herz gewaltig klopfte und sprach „mein Kind, was fürchtest du dich, steht etwa ein Riese vor der Thür und will dich holen?“ „Ach nein,“ antwortete sie, „es ist kein Riese, sondern ein garstiger Frosch.“ „Was will der Frosch von dir?“ „Ach lieber Vater, als ich gestern im Wald bei dem Brunnen saß und spielte, da fiel meine goldene Kugel ins Wasser. Und weil ich so weinte, hat sie der Frosch wieder heraufgeholt, und weil er es durchaus verlangte, so versprach ich ihm er sollte mein Geselle werden, ich dachte aber nimmermehr daß er aus seinem Wasser heraus könnte. Nun ist er draußen und will zu mir herein.“ Indem klopfte es zum zweitenmal und rief
+
+„Königstochter, jüngste,
+mach mir auf,
+weißt du nicht was gestern
+du zu mir gesagt
+bei dem kühlen Brunnenwasser?
+Königstochter, jüngste,
+mach mir auf.“
+
+Da sagte der König „was du versprochen hast, das mußt du auch halten; geh nur und mach ihm auf.“ Sie gieng und öffnete die Thüre, da hüpfte der Frosch herein, ihr immer auf dem Fuße nach, bis zu ihrem Stuhl. Da saß er und rief „heb mich herauf zu dir.“ Sie zauderte bis es endlich der König befahl. Als der Frosch erst auf dem Stuhl war, wollte er auf den Tisch, und als er da saß, sprach er „nun schieb mir dein goldenes Tellerlein näher, damit wir zusammen essen.“ Das that sie zwar, aber man sah wohl daß sies nicht gerne that. Der Frosch ließ sichs gut schmecken, aber ihr blieb fast jedes Bißlein im Halse. Endlich sprach er „ich habe mich satt gegessen, und bin müde, nun trag mich in dein Kämmerlein
+und mach dein seiden Bettlein zurecht, da wollen wir uns schlafen legen.“ Die Königstochter fieng an zu weinen und fürchtete sich vor dem kalten Frosch, den sie nicht anzurühren getraute, und der nun in ihrem schönen reinen Bettlein schlafen sollte. Der König aber ward zornig und sprach „wer dir geholfen hat, als du in der Noth warst, den sollst du hernach nicht verachten.“ Da packte sie ihn mit zwei Fingern, trug ihn hinauf und setzte ihn in eine Ecke. Als sie aber im Bett lag, kam er gekrochen und sprach „ich bin müde, ich will schlafen so gut wie du: heb mich herauf, oder ich sags deinem Vater.“ Da ward sie erst bitterböse, holte ihn herauf und warf ihn aus allen Kräften wider die Wand, „nun wirst du Ruhe haben, du garstiger Frosch.“
+
+Als er aber herab fiel, war er kein Frosch, sondern ein Königssohn mit schönen und freundlichen Augen. Der war nun nach ihres Vaters Willen ihr lieber Geselle und Gemahl. Da erzählte er ihr, er wäre von einer bösen Hexe verwünscht worden, und Niemand hätte ihn aus dem Brunnen erlösen können als sie allein, und morgen wollten sie zusammen in sein Reich gehen. Dann schliefen sie ein, und am andern Morgen, als die Sonne sie aufweckte, kam ein Wagen heran gefahren mit acht weißen Pferden bespannt, die hatten weiße Straußfedern auf dem Kopf, und giengen in goldenen Ketten, und hinten stand der Diener des jungen Königs, das war der treue Heinrich. Der treue Heinrich hatte sich so betrübt, als sein Herr war in einen Frosch verwandelt worden, daß er drei eiserne Bande hatte um sein Herz legen lassen, damit es ihm nicht vor Weh und Traurigkeit zerspränge. Der Wagen aber sollte den jungen König in sein Reich abholen; der treue Heinrich hob beide hinein, stellte sich wieder hinten auf und war voller Freude über die Erlösung. Und als sie ein Stück Wegs gefahren waren, hörte der Königssohn daß es hinter ihm krachte, als wäre etwas zerbrochen. Da drehte er sich um und rief
+
+„Heinrich, der Wagen bricht.“
+„Nein, Herr, der Wagen nicht,
+es ist ein Band von meinem Herzen,
+das da lag in großen Schmerzen,
+als ihr in dem Brunnen saßt,
+als ihr eine Fretsche (Frosch) wast (wart).“
+
+
+    
+    
+    
+    Es waren einmal ein Mäuschen, ein Vögelchen und eine Bratwurst in Gesellschaft gerathen, hatten einen Haushalt geführt, lange wohl und köstlich im Frieden gelebt, und trefflich an Gütern zugenommen. Des Vögelchens Arbeit war, daß es täglich im Wald fliegen und Holz beibringen müßte. Die Maus sollte Wasser tragen, Feuer anmachen und den Tisch decken, die Bratwurst aber sollte kochen.
+
+Wem zu wohl ist, den gelüstet immer nach neuen Dingen! Also eines Tages stieß dem Vöglein unterwegs ein anderer Vogel auf, dem es seine treffliche Gelegenheit erzählte und rühmte. Derselbe andere Vogel schalt es aber einen armen Tropf, der große Arbeit, die beiden zu Haus aber gute Tage hätten. Denn, wenn die Maus ihr Feuer angemacht und Wasser getragen hatte, so begab sie sich in ihr Kämmerlein zur Ruhe bis man sie hieß den Tisch decken. Das Würstlein blieb beim Hafen, sah zu daß die Speise wohl kochte, und wenn es bald Essenszeit war, schlingte es sich ein mal viere durch den Brei oder das Gemüs, so war es geschmalzen, gesalzen und bereitet. Kam dann das Vöglein heim und legte seine Bürde ab, so saßen sie zu Tisch, und nach gehabtem Mahl schliefen sie sich die Haut voll bis den andern Morgen; und das war ein herrlich Leben.
+
+Das Vöglein anderes Tages wollte aus Anstiftung nicht mehr ins Holz, sprechend es wäre lang genug Knecht gewesen, und hätte gleichsam ihr Narr sein müssen, sie sollten einmal umwechseln und es auf eine andere Weise auch versuchen. Und wie wohl die Maus und auch die Bratwurst heftig dafür bat, so war der Vogel doch Meister: es mußte gewagt sein, spieleten derowegen, und kam das Loos auf die Bratwurst, die mußte Holz tragen, die Maus ward Koch, und der Vogel sollte Wasser holen.
+
+Was geschieht? das Bratwürstchen zog fort gen Holz, das Vöglein machte Feuer an, die Maus stellte den Topf zu, und erwarteten allein, bis Bratwürstchen heim käme und Holz für den andern Tag brächte. Es blieb aber das Würstlein so lang unterwegs, daß ihnen beiden nichts gutes vorkam, und das Vöglein ein Stück Luft hinaus entgegen flog. Unfern aber findet es einen Hund am Weg, der das arme Bratwürstlein als freie Beut angetroffen, angepackt und niedergemacht. Das Vöglein beschwerte sich auch dessen als eines offenbaren Raubes sehr gegen den Hund, aber es half kein Wort, denn, sprach der Hund, er hätte falsche Briefe bei der Bratwurst gefunden, deswegen wäre sie ihm des Lebens verfallen gewesen.
+
+Das Vöglein, traurig, nahm das Holz auf sich, flog heim und erzählte was es gesehn und gehöret. Sie waren sehr betrübt, verglichen sich aber das beste zu thun und beisammen zu bleiben. Derowegen so deckte das Vöglein den Tisch und die Maus rüstete das Essen, und wollte anrichten, und in den Hafen, wie zuvor das Würstlein, durch das Gemüs schlingen und schlupfen, dasselbe zu schmelzen: aber ehe sie in die Mitte kam, ward sie angehalten und mußte Haut und Haar und dabei das Leben lassen.
+
+Als das Vöglein kam und wollte das Essen auftragen, da war kein Koch vorhanden. Das Vöglein warf bestürzt das Holz hin und her, rufte und suchte, konnte aber seinen Koch nicht mehr finden. Aus Unachtsamkeit kam das Feuer in das Holz, also daß eine Brunst entstand; das Vöglein eilte Wasser zu langen, da entfiel ihm der Eimer in den Brunnen, und es mit hinab, daß es sich nicht mehr erholen konnte und da ersaufen mußte. 
+    
+    
+    
+    
+    
+Hans hatte sieben Jahre bei seinem Herrn gedient, da sprach er zu ihm „Herr, meine Zeit ist herum, nun wollte ich gerne wieder heim zu meiner Mutter, gebt mir meinen Lohn.“ Der Herr antwortete „du hast mir treu und ehrlich gedient, wie der Dienst war, so soll der Lohn sein,“ und gab ihm ein Stück Gold, das so groß als Hansens Kopf war. Hans zog sein Tüchlein aus der Tasche, wickelte den Klumpen hinein, setzte ihn auf die Schulter und machte sich auf den Weg nach Haus. Wie er so dahin gieng und immer ein Bein vor das andere setzte, kam ihm ein Reiter in die Augen, der frisch und fröhlich auf einem muntern Pferd vorbei trabte. „Ach,“ sprach Hans ganz laut, „was ist das Reiten ein schönes Ding! da sitzt einer wie auf einem Stuhl, stößt sich an keinen Stein, spart die Schuh, und kommt fort, er weiß nicht wie.“ Der Reiter, der das gehört hatte, hielt an und rief „ei, Hans, warum laufst du auch zu Fuß?“ „Ich muß ja wohl,“ antwortete er, „da habe ich einen Klumpen heim zu tragen: es ist zwar Gold, aber ich kann den Kopf dabei nicht gerad halten, auch drückt mirs auf die Schulter.“ „Weißt du was,“ sagte der Reiter, „wir wollen tauschen: ich gebe dir mein Pferd, und du gibst mir deinen Klumpen.“ „Von Herzen gern,“ sprach Hans, „aber ich sage euch ihr müßt euch damit schleppen.“ Der Reiter stieg ab, nahm das Gold und half dem Hans hinauf, gab ihm die Zügel fest in die Hände und sprach „wenns nun recht geschwind soll gehen, so mußt du mit der Zunge schnalzen, und hopp hopp rufen.“
+
+Hans war seelenfroh, als er auf dem Pferde saß und so frank und frei dahin ritt. Über ein Weilchen fiels ihm ein, es sollte noch schneller gehen, und fieng an mit der Zunge zu schnalzen und hopp hopp zu rufen. Das Pferd setzte sich in starken Trab, und ehe sichs Hans versah, war er abgeworfen und lag in einem Graben, der die Äcker von der Landstraße trennte. Das Pferd wäre auch durchgegangen, wenn es nicht ein Bauer aufgehalten hätte, der des Weges kam und eine Kuh vor sich her trieb. Hans suchte seine Glieder zusammen und machte sich wieder auf die Beine. Er war aber verdrießlich und sprach zu dem Bauer „es ist ein schlechter Spaß, das Reiten, zumal, wenn man auf so eine Mähre geräth wie diese, die stößt und einen herabwirft, daß man den Hals brechen kann; ich setze mich nun und nimmermehr wieder auf. Da lob ich mir eure Kuh, da kann einer mit Gemächlichkeit hinter her gehen und hat obendrein seine Milch, Butter und Käse jeden Tag gewiß. Was gäb ich darum, wenn ich so eine Kuh hätte!“ „Nun,“ sprach der Bauer, „geschieht euch so ein großer Gefallen, so will ich euch wohl die Kuh für das Pferd vertauschen.“ Hans willigte mit tausend Freuden ein: der Bauer schwang sich aufs Pferd und ritt eilig davon.
+
+Hans trieb seine Kuh ruhig vor sich her und bedachte den glücklichen Handel. „Hab ich nur ein Stück Brot, und daran wird mirs doch nicht fehlen, so kann ich, so oft mirs beliebt, Butter und Käse dazu essen; hab ich Durst, so melk ich meine Kuh und trinke Milch. Herz, was verlangst du mehr?“ Als er zu einem Wirthshaus kam, machte er Halt, aß in der großen Freude alles, was er bei sich hatte, sein Mittags- und Abendbrot, rein auf, und ließ sich für seine letzten paar Heller ein halbes Glas Bier einschenken. Dann trieb er seine Kuh weiter, immer nach dem Dorfe seiner Mutter zu. Die Hitze ward drückender, je näher der Mittag kam, und Hans befand sich in einer Heide, die wohl noch eine Stunde dauerte. Da ward es ihm ganz heiß, so daß ihm vor Durst die Zunge am Gaumen klebte. „Dem Ding ist zu helfen,“ dachte Hans, „jetzt will ich meine Kuh melken und mich an der Milch laben.“ Er band sie an einen dürren Baum, und da er keinen Eimer hatte, so stellte er seine Ledermütze unter, aber wie er sich auch bemühte, es kam kein Tropfen Milch zum Vorschein. Und weil er sich ungeschickt dabei anstellte, so gab ihm das ungeduldige Thier endlich mit einem der Hinterfüße einen solchen Schlag vor den Kopf, daß er zu Boden taumelte und eine zeitlang sich gar nicht besinnen konnte wo er war. Glücklicherweise kam gerade ein Metzger des Weges, der auf einem Schubkarren ein junges Schwein liegen hatte. „Was sind das für Streiche!“ rief er und half dem guten Hans auf. Hans erzählte was vorgefallen war. Der Metzger reichte ihm seine Flasche und sprach „da trinkt einmal und erholt euch. Die Kuh will wohl keine Milch geben, das ist ein altes Thier, das höchstens noch zum Ziehen taugt oder zum Schlachten.“ „Ei, ei,“ sprach Hans, und strich sich die Haare über den Kopf, „wer hätte das gedacht! es ist freilich gut, wenn man so ein Thier ins Haus abschlachten kann, was gibts für Fleisch! aber ich mache mir aus dem Kuhfleisch nicht viel, es ist mir nicht saftig genug. Ja, wer so ein junges Schwein hätte! das schmeckt anders, dabei noch die Würste.“ „Hört, Hans,“ sprach da der Metzger, „euch zu Liebe will ich tauschen und will euch das Schwein für die Kuh lassen.“ „Gott lohn euch eure Freundschaft“ sprach Hans, übergab ihm die Kuh, ließ sich das Schweinchen vom Karren losmachen und den Strick, woran es gebunden war, in die Hand geben.
+
+Hans zog weiter und überdachte wie ihm doch alles nach Wunsch gienge, begegnete ihm ja eine Verdrießlichkeit, so würde sie doch gleich wieder gut gemacht. Es gesellte sich danach ein Bursch zu ihm, der trug eine schöne weiße Gans unter dem Arm. Sie boten einander die Zeit, und Hans fieng an von seinem Glück zu erzählen und wie er immer so vortheilhaft getauscht hätte. Der Bursch erzählte ihm daß er die Gans zu einem Kindtaufschmaus brächte. „Hebt einmal,“ fuhr er fort, und packte sie bei den Flügeln, „wie schwer sie ist, die ist aber auch acht Wochen lang genudelt worden. Wer in den Braten beißt, muß sich das Fett von beiden Seiten abwischen.“ „Ja,“ sprach Hans, und wog sie mit der einen Hand, „die hat ihr Gewicht, aber mein Schwein ist auch keine Sau.“ Indessen sah sich der Bursch nach allen Seiten ganz bedenklich um, schüttelte auch wohl mit dem Kopf. „Hört,“ fieng er darauf an, „mit eurem Schweine mags nicht ganz richtig sein. In dem Dorfe, durch das ich gekommen bin, ist eben dem Schulzen eins aus dem Stall gestohlen worden. Ich fürchte, ich fürchte, ihr habts da in der Hand. Sie haben Leute ausgeschickt, und es wäre ein schlimmer Handel, wenn sie euch mit dem Schwein erwischten: das geringste ist, daß ihr ins finstere Loch gesteckt werdet.“ Dem guten Hans ward bang, „ach Gott,“ sprach er, „helft mir aus der Noth, ihr wißt hier herum bessern Bescheid, nehmt mein Schwein da und laßt mir eure Gans.“ „Ich muß schon etwas aufs Spiel setzen,“ antwortete der Bursche, „aber ich will doch nicht Schuld sein daß ihr ins Unglück gerathet.“ Er nahm also das Seil in die Hand und trieb das Schwein schnell auf einen Seitenweg fort: der gute Hans aber gieng, seiner Sorgen entledigt, mit der Gans unter dem Arme der Heimath zu. „Wenn ichs recht überlege,“ sprach er mit sich selbst, „habe ich noch Vortheil bei dem Tausch: erstlich den guten Braten, hernach die Menge von Fett, die herausträufeln wird, das gibt Gänsefettbrot auf ein Vierteljahr: und endlich die schönen weißen Federn, die laß ich mir in mein Kopfkissen stopfen, und darauf will ich wohl ungewiegt einschlafen. Was wird meine Mutter eine Freude haben!“
+
+Als er durch das letzte Dorf gekommen war, stand da ein Scheerenschleifer mit seinem Karren, sein Rad schnurrte, und er sang dazu
+
+„ich schleife die Scheere und drehe geschwind,
+und hänge mein Mäntelchen nach dem Wind.“
+
+Hans blieb stehen und sah ihm zu; endlich redete er ihn an, und sprach „euch gehts wohl, weil ihr so lustig bei eurem Schleifen seid.“ „Ja,“ antwortete der Scheerenschleifer, „das Handwerk hat einen güldenen Boden. Ein rechter Schleifer ist ein Mann, der, so oft er in die Tasche greift, auch Geld darin findet. Aber wo habt ihr die schöne Gans gekauft?“ „Die hab ich nicht gekauft, sondern für mein Schwein eingetauscht.“ „Und das Schwein?“ „Das hab ich für eine Kuh gekriegt.“ „Und die Kuh?“ „Die hab ich für ein Pferd bekommen.“ „Und das Pferd?“ „Dafür hab ich einen Klumpen Gold, so groß als mein Kopf, gegeben.“ „Und das Gold?“ „Ei, das war mein Lohn für sieben Jahre Dienst.“ „Ihr habt euch jederzeit zu helfen gewußt,“ sprach der Schleifer, „könnt ihrs nun dahin bringen, daß ihr das Geld in der Tasche springen hört, wenn ihr aufsteht, so habt ihr euer Glück gemacht.“ „Wie soll ich das anfangen?“ sprach Hans „Ihr müßt ein Schleifer werden, wie ich; dazu gehört eigentlich nichts, als ein Wetzstein, das andere findet sich schon von selbst. Da hab ich einen, der ist zwar ein wenig schadhaft, dafür sollt ihr mir aber auch weiter nichts als eure Gans geben; wollt ihr das?“ „Wie könnt ihr noch fragen,“ antwortete Hans, „ich werde ja zum glücklichsten Menschen auf Erden; habe ich Geld, so oft ich in die Tasche greife, was brauche ich da länger zu sorgen?“ reichte ihm die Gans hin, und nahm den Wetzstein in Empfang. „Nun,“ sprach der Schleifer, und hob einen gewöhnlichen schweren Feldstein, der neben ihm lag, auf, „da habt ihr noch einen tüchtigen Stein dazu, auf dem sichs gut schlagen läßt, und ihr eure alten Nägel gerade klopfen könnt. Nehmt hin und hebt ihn ordentlich auf.“
+
+Hans lud den Stein auf und gieng mit vergnügtem Herzen weiter; seine Augen leuchteten vor Freude, „ich muß in einer Glückshaut geboren sein,“ rief er aus, „alles was ich wünsche trifft mir ein, wie einem Sonntagskind.“ Indessen, weil er seit Tagesanbruch auf den Beinen gewesen war, begann er müde zu werden; auch plagte ihn der Hunger, da er allen Vorrath auf einmal in der Freude über die erhandelte Kuh aufgezehrt hatte. Er konnte endlich nur mit Mühe weiter gehen und mußte jeden Augenblick Halt machen; dabei drückten ihn die Steine ganz erbärmlich. Da konnte er sich des Gedankens nicht erwehren, wie gut es wäre, wenn er sie gerade jetzt nicht zu tragen brauchte. Wie eine Schnecke kam er zu einem Feldbrunnen geschlichen, wollte da ruhen und sich mit einem frischen Trunk laben: damit er aber die Steine im Niedersitzen nicht beschädigte, legte er sie bedächtig neben sich auf den Rand des Brunnens. Darauf setzte er sich nieder und wollte sich zum Trinken bücken, da versah ers, stieß ein klein wenig an, und beide Steine plumpten hinab. Hans, als er sie mit seinen Augen in die Tiefe hatte versinken sehen, sprang vor Freuden auf, kniete dann nieder und dankte Gott mit Thränen in den Augen daß er ihm auch diese Gnade noch erwiesen und ihn auf eine so gute Art und ohne daß er sich einen Vorwurf zu machen brauchte, von den schweren Steinen befreit hätte, die ihm allein noch hinderlich gewesen wären. „So glücklich wie ich,“ rief er aus, „gibt es keinen Menschen unter der Sonne.“ Mit leichtem Herzen und frei von aller Last sprang er nun fort, bis er daheim bei seiner Mutter war. 
+    
+    
+    
+    
+    
+    
+Es war einmal ein Mann und eine Frau, die wünschten sich schon lange vergeblich ein Kind, endlich machte sich die Frau Hoffnung der liebe Gott werde ihren Wunsch erfüllen. Die Leute hatten in ihrem Hinterhaus ein kleines Fenster, daraus konnte man in einen prächtigen Garten sehen, der voll der schönsten Blumen und Kräuter stand; er war aber von einer hohen Mauer umgeben, und niemand wagte hinein zu gehen, weil er einer Zauberin gehörte, die große Macht hatte und von aller Welt gefürchtet ward. Eines Tags stand die Frau an diesem Fenster und sah in den Garten hinab, da erblickte sie ein Beet, das mit den schönsten Rapunzeln bepflanzt war: und sie sahen so frisch und grün aus, daß sie lüstern ward und das größte Verlangen empfand von den Rapunzeln zu essen. Das Verlangen nahm jeden Tag zu, und da sie wußte daß sie keine davon bekommen konnte, so fiel sie ganz ab, sah blaß und elend aus. Da erschrack der Mann und fragte „was fehlt dir, liebe Frau?“ „Ach,“ antwortete sie, „wenn ich keine Rapunzeln aus dem Garten hinter unserm Hause zu essen kriege, so sterbe ich.“ Der Mann, der sie lieb hatte, dachte „eh du deine Frau sterben lässest, holst du ihr von den Rapunzeln, es mag kosten was es will.“ In der Abenddämmerung stieg er also über die Mauer in den Garten der Zauberin, stach in aller Eile eine Hand voll Rapunzeln und brachte sie seiner Frau. Sie machte sich sogleich Salat daraus und aß sie in voller Begierde auf. Sie hatten ihr aber so gut, so gut geschmeckt, daß sie den andern Tag noch dreimal so viel Lust bekam. Sollte sie Ruhe haben, so mußte der Mann noch einmal in den Garten steigen. Er machte sich also in der Abenddämmerung wieder hinab, als er aber die Mauer herabgeklettert war, erschrack er gewaltig, denn er sah die Zauberin vor sich stehen. „Wie kannst du es wagen,“ sprach sie mit zornigem Blick, „in meinen Garten zu steigen und wie ein Dieb mir meine Rapunzeln zu stehlen? das soll dir schlecht bekommen.“ „Ach,“ antwortete er, „laßt Gnade für Recht ergehen, ich habe mich nur aus Noth dazu entschlossen: meine Frau hat eure Rapunzeln aus dem Fenster erblickt, und empfindet ein so großes Gelüsten, daß sie sterben würde, wenn sie nicht davon zu essen bekäme.“ Da ließ die Zauberin in ihrem Zorne nach und sprach zu ihm „verhält es sich so, wie du sagst, so will ich dir gestatten Rapunzeln mitzunehmen so viel du willst, allein ich mache eine Bedingung: du mußt mir das Kind geben, das deine Frau zur Welt bringen wird. Es soll ihm gut gehen, und ich will für es sorgen wie eine Mutter.“ Der Mann sagte in der Angst alles zu, und als die Frau in Wochen kam, so erschien sogleich die Zauberin, gab dem Kinde den Namen Rapunzel und nahm es mit sich fort.
+
+Rapunzel ward das schönste Kind unter der Sonne. Als es zwölf Jahre alt war, schloß es die Zauberin in einen Thurm, der in einem Walde lag, und weder Treppe noch Thüre hatte, nur ganz oben war ein kleines Fensterchen. Wenn die Zauberin hinein wollte, so stellte sie sich unten hin, und rief
+
+„Rapunzel, Rapunzel,
+laß mir dein Haar herunter.“
+
+Rapunzel hatte lange prächtige Haare, fein wie gesponnen Gold. Wenn sie nun die Stimme der Zauberin vernahm, so band sie ihre Zöpfe los, wickelte sie oben um einen Fensterhaken, und dann fielen die Haare zwanzig Ellen tief herunter, und die Zauberin stieg daran hinauf. Nach ein paar Jahren trug es sich zu, daß der Sohn des Königs durch den Wald ritt und an dem Thurm vorüber kam. Da hörte er einen Gesang, der war so lieblich, daß er still hielt und horchte. Das war Rapunzel, die in ihrer Einsamkeit sich die Zeit damit vertrieb, ihre süße Stimme erschallen zu lassen. Der Königssohn wollte zu ihr hinauf steigen und suchte nach einer Thüre des Thurms, aber es war keine zu finden. Er ritt heim, doch der Gesang hatte ihm so sehr das Herz gerührt, daß er jeden Tag hinaus in den Wald gieng und zuhörte. Als er einmal so hinter einem Baum stand, sah er daß eine Zauberin heran kam und hörte wie sie hinauf rief
+
+„Rapunzel, Rapunzel,
+laß dein Haar herunter.“
+
+Da ließ Rapunzel die Haarflechten herab, und die Zauberin stieg zu ihr hinauf. „Ist das die Leiter, auf welcher man hinauf kommt, so will ich auch einmal mein Glück versuchen.“ Und den folgenden Tag, als es anfieng dunkel zu werden, gieng er zu dem Thurme und rief
+
+„Rapunzel, Rapunzel,
+laß dein Haar herunter.“
+
+Alsbald fielen die Haare herab und der Königssohn stieg hinauf.
+
+Anfangs erschrack Rapunzel gewaltig als ein Mann zu ihr herein kam, wie ihre Augen noch nie einen erblickt hatten, doch der Königssohn fing an ganz freundlich mit ihr zu reden und erzählte ihr daß von ihrem Gesang sein Herz so sehr sei bewegt worden, daß es ihm keine Ruhe gelassen, und er sie selbst habe sehen müssen. Da verlor Rapunzel ihre Angst, und als er sie fragte ob sie ihn zum Manne nehmen wollte, und sie sah daß er jung und schön war, so dachte sie „der wird mich lieber haben als die alte Frau Gothel,“ und sagte ja und legte ihre Hand in seine Hand. Sie sprach „ich will gerne mit dir gehen, aber ich weiß nicht wie ich herab kommen kann. Wenn du kommst, so bring jedesmal einen Strang Seide mit, daraus will ich eine Leiter flechten und wenn die fertig ist, so steige ich herunter und du nimmst mich auf dein Pferd.“ Sie verabredeten daß er bis dahin alle Abend zu ihr kommen sollte, denn bei Tag kam die Alte. Die Zauberin merkte auch nichts davon, bis einmal Rapunzel anfieng und zu ihr sagte „sag sie mir doch, Frau Gothel, wie kommt es nur, sie wird mir viel schwerer heraufzuziehen, als der junge Königssohn, der ist in einem Augenblick bei mir.“ „Ach du gottloses Kind,“ rief die Zauberin, „was muß ich von dir hören, ich dachte ich hätte dich von aller Welt geschieden, und du hast mich doch betrogen!“ In ihrem Zorne packte sie die schönen Haare der Rapunzel, schlug sie ein paar mal um ihre linke Hand, griff eine Scheere mit der rechten, und ritsch, ratsch, waren sie abgeschnitten, und die schönen Flechten lagen auf der Erde. Und sie war so unbarmherzig daß sie die arme Rapunzel in eine Wüstenei brachte, wo sie in großem Jammer und Elend leben mußte.
+
+Denselben Tag aber, wo sie Rapunzel verstoßen hatte, machte Abends die Zauberin die abgeschnittenen Flechten oben am Fensterhaken fest, und als der Königssohn kam und rief
+
+„Rapunzel, Rapunzel,
+laß dein Haar herunter,“
+
+so ließ sie die Haare hinab. Der Königssohn stieg hinauf, aber er fand oben nicht seine liebste Rapunzel, sondern die Zauberin, die ihn mit bösen und giftigen Blicken ansah. „Aha,“ rief sie höhnisch, „du willst die Frau Liebste holen, aber der schöne Vogel sitzt nicht mehr im Nest und singt nicht mehr, die Katze hat ihn geholt und wird dir auch noch die Augen auskratzen. Für dich ist Rapunzel verloren, du wirst sie nie wieder erblicken.“ Der Königssohn gerieth außer sich vor Schmerz, und in der Verzweiflung sprang er den Thurm herab: das Leben brachte er davon, aber die Dornen, in die er fiel, zerstachen ihm die Augen. Da irrte er blind im Walde umher, aß nichts als Wurzeln und Beeren, und that nichts als jammern und weinen über den Verlust seiner liebsten Frau. So wanderte er einige Jahre im Elend umher und gerieth endlich in die Wüstenei, wo Rapunzel mit den Zwillingen, die sie geboren hatte, einem Knaben und Mädchen, kümmerlich lebte. Er vernahm eine Stimme, und sie däuchte ihn so bekannt: da gieng er darauf zu, und wie er heran kam, erkannte ihn Rapunzel und fiel ihm um den Hals und weinte. Zwei von ihren Thränen aber benetzten seine Augen, da wurden sie wieder klar, und er konnte damit sehen wie sonst. Er führte sie in sein Reich, wo er mit Freude empfangen ward, und sie lebten noch lange glücklich und vergnügt. 
+    
+    
+    
+    
+    
+Es war einmal ein Müller, der führte mit seiner Frau ein vergnügtes Leben. Sie hatten Geld und Gut, und ihr Wohlstand nahm von Jahr zu Jahr noch zu. Aber Unglück kommt über Nacht: wie ihr Reichthum gewachsen war, so schwand er von Jahr zu Jahr wieder hin, und zuletzt konnte der Müller kaum noch die Mühle, in der er saß, sein Eigenthum nennen. Er war voll Kummer, und wenn er sich nach der Arbeit des Tags nieder legte, so fand er keine Ruhe, sondern wälzte sich voll Sorgen in seinem Bett. Eines Morgens stand er schon vor Tagesanbruch auf, gieng hinaus ins Freie und dachte es sollte ihm leichter ums Herz werden. Als er über dem Mühldamm dahin schritt, brach eben der erste Sonnenstrahl hervor, und er hörte in dem Weiher etwas rauschen. Er wendete sich um und erblickte ein schönes Weib, das sich langsam aus dem Wasser erhob. Ihre langen Haare, die sie über den Schultern mit ihren zarten Händen gefaßt hatte, flossen an beiden Seiten herab und bedeckten ihren weißen Leib. Er sah wohl daß es die Nixe des Teichs war und wußte vor Furcht nicht ob er davon gehen oder stehen bleiben sollte. Aber die Nixe ließ ihre sanfte Stimme hören, nannte ihn bei Namen und fragte warum er so traurig wäre. Der Müller war anfangs verstummt, als er sie aber so freundlich sprechen hörte, faßte er sich ein Herz und erzählte ihr daß er sonst in Glück und Reichthum gelebt hätte, aber jetzt so arm wäre, daß er sich nicht zu rathen wüßte. „Sei ruhig,“ antwortete die Nixe, „ich will dich reicher und glücklicher machen als du je gewesen bist, nur mußt du mir versprechen daß du mir geben willst was eben in deinem Hause jung geworden ist.“ „Was kann das anders sein,“ dachte der Müller, „als ein junger Hund oder ein junges Kätzchen?“ und sagte ihr zu was sie verlangte. Die Nixe stieg wieder in das Wasser hinab, und er eilte getröstet und gutes Muthes nach seiner Mühle. Noch hatte er sie nicht erreicht, da trat die Magd aus der Hausthüre und rief ihm zu er sollte sich freuen, seine Frau hätte ihm einen kleinen Knaben geboren. Der Müller stand wie vom Blitz gerührt, er sah wohl daß die tückische Nixe das gewußt und ihn betrogen hatte. Mit gesenktem Haupt trat er zu dem Bett seiner Frau, und als sie ihn fragte „warum freust du dich nicht über den schönen Knaben?“ so erzählte er ihr was ihm begegnet war und was für ein Versprechen er der Nixe gegeben hatte. „Was hilft mir Glück und Reichthum,“ fügte er hinzu, „wenn ich mein Kind verlieren soll? aber was kann ich thun?“ Auch die Verwandten, die herbeigekommen waren, Glück zu wünschen, wußten keinen Rath.
+
+Indessen kehrte das Glück in das Haus des Müllers wieder ein. Was er unternahm gelang, es war als ob Kisten und Kasten von selbst sich füllten und das Geld im Schrank über Nacht sich mehrte. Es dauerte nicht lange, so war sein Reichthum größer als je zuvor. Aber er konnte sich nicht ungestört darüber freuen: die Zusage, die er der Nixe gethan hatte, quälte sein Herz. So oft er an dem Teich vorbei kam, fürchtete er sie möchte auftauchen und ihn an seine Schuld mahnen. Den Knaben selbst ließ er nicht in die Nähe des Wassers: „hüte dich,“ sagte er zu ihm, „wenn du das Wasser berührst, so kommt eine Hand heraus, hascht dich und zieht dich hinab.“ Doch als Jahr auf Jahr vergieng, und die Nixe sich nicht wieder zeigte, so fieng der Müller an sich zu beruhigen.
+
+Der Knabe wuchs zum Jüngling heran und kam bei einem Jäger in die Lehre. Als er ausgelernt hatte und ein tüchtiger Jäger geworden war, nahm ihn der Herr des Dorfes in seine Dienste. In dem Dorf war ein schönes und treues Mädchen, das gefiel dem Jäger, und als sein Herr das bemerkte, schenkte er ihm ein kleines Haus; die beiden hielten Hochzeit, lebten ruhig und glücklich und liebten sich von Herzen.
+
+Einsmals verfolgte der Jäger ein Reh. Als das Thier aus dem Wald in das freie Feld ausbog, setzte er ihm nach und streckte es endlich mit einem Schuß nieder. Er bemerkte nicht daß er sich in der Nähe des gefährlichen Weihers befand, und gieng, nachdem er das Thier ausgeweidet hatte, zu dem Wasser, um seine mit Blut befleckten Hände zu waschen. Kaum aber hatte er sie hinein getaucht, als die Nixe emporstieg, lachend mit ihren nassen Armen ihn umschlang und so schnell hinabzog, daß die Wellen über ihm zusammenschlugen.
+
+Als es Abend war und der Jäger nicht nach Haus kam, so gerieth seine Frau in Angst. Sie gieng aus ihn zu suchen, und da er ihr oft erzählt hatte daß er sich vor den Nachstellungen der Nixe in Acht nehmen müßte und nicht in die Nähe des Weihers sich wagen dürfte, so ahnte sie schon was geschehen war. Sie eilte zu dem Wasser, und als sie am Ufer seine Jägertasche liegen fand, da konnte sie nicht länger an dem Unglück zweifeln. Wehklagend und händeringend rief sie ihren Liebsten mit Namen, aber vergeblich: sie eilte hinüber auf die andere Seite des Weihers, und rief ihn aufs neue: sie schalt die Nixe mit harten Worten, aber keine Antwort erfolgte. Der Spiegel des Wassers blieb ruhig, nur das halbe Gesicht des Mondes blickte unbeweglich zu ihr herauf.
+
+Die arme Frau verließ den Teich nicht. Mit schnellen Schritten, ohne Rast und Ruhe, umkreißte sie ihn immer von neuem, manchmal still, manchmal einen heftigen Schrei ausstoßend, manchmal in leisem Wimmern. Endlich waren ihre Kräfte zu Ende: sie sank zur Erde nieder und verfiel in einen tiefen Schlaf. Bald überkam sie ein Traum.
+
+Sie stieg zwischen großen Felsblöcken angstvoll aufwärts; Dornen und Ranken hakten sich an ihre Füße, der Regen schlug ihr ins Gesicht und der Wind zauste ihr langes Haar. Als sie die Anhöhe erreicht hatte, bot sich ein ganz anderer Anblick dar. Der Himmel war blau, die Luft mild, der Boden senkte sich sanft hinab und auf einer grünen, bunt beblümten Wiese stand eine reinliche Hütte. Sie gieng darauf zu und öffnete die Thüre, da saß eine Alte mit weißen Haaren, die ihr freundlich winkte. In dem Augenblick erwachte die arme Frau. Der Tag war schon angebrochen, und sie entschloß sich gleich dem Traum Folge zu leisten. Sie stieg mühsam den Berg hinauf, und es war alles so, wie sie es in der Nacht gesehen hatte. Die Alte empfieng sie freundlich und zeigte ihr einen Stuhl, auf den sie sich setzen sollte. „Du mußt ein Unglück erlebt haben,“ sagte sie, „weil du meine einsame Hütte aufsuchst.“ Die Frau erzählte ihr unter Thränen was ihr begegnet war. „Tröste dich,“ sagte die Alte, „ich will dir helfen: da hast du einen goldenen Kamm. Harre bis der Vollmond aufgestiegen ist, dann geh zu dem Weiher, setze dich am Rand nieder und strähle dein langes schwarzes Haar mit diesem Kamm. Wenn du aber fertig bist, so lege ihn am Ufer nieder, und du wirst sehen was geschieht.“
+
+Die Frau kehrte zurück, aber die Zeit bis zum Vollmond verstrich ihr langsam. Endlich erschien die leuchtende Scheibe am Himmel, da gieng sie hinaus an den Weiher, setzte sich nieder und kämmte ihre langen schwarzen Haare mit dem goldenen Kamm, und als sie fertig war, legte sie ihn an den Rand des Wassers nieder. Nicht lange, so brauste es aus der Tiefe, eine Welle erhob sich, rollte an das Ufer und führte den Kamm mit sich fort. Es dauerte nicht länger als der Kamm nöthig hatte, auf den Grund zu sinken, so theilte sich der Wasserspiegel und der Kopf des Jägers stieg in die Höhe. Er sprach nicht, schaute aber seine Frau mit traurigen Blicken an. In demselben Augenblick kam eine zweite Welle herangerauscht und bedeckte das Haupt des Mannes. Alles war verschwunden, der Weiher lag so ruhig wie zuvor und nur das Gesicht des Vollmondes glänzte darauf.
+
+Trostlos kehrte die Frau zurück, doch der Traum zeigte ihr die Hütte der Alten. Abermals machte sie sich am nächsten Morgen auf den Weg und klagte der weisen Frau ihr Leid. Die Alte gab ihr eine goldene Flöte, und sprach „harre bis der Vollmond wieder kommt, dann nimm diese Flöte, setze dich an das Ufer, blas ein schönes Lied darauf, und wenn du damit fertig bist, so lege sie auf den Sand; du wirst sehen was geschieht.“
+
+Die Frau that wie die Alte gesagt hatte. Kaum lag die Flöte auf dem Sand, so brauste es aus der Tiefe: eine Welle erhob sich, zog heran, und führte die Flöte mit sich fort. Bald darauf theilte sich das Wasser und nicht bloß der Kopf auch der Mann bis zur Hälfte des Leibes stieg hervor. Er breitete voll Verlangen seine Arme nach ihr aus, aber eine zweite Welle rauschte heran, bedeckte ihn und zog ihn wieder hinab.
+
+„Ach, was hilft es mir,“ sagte die Unglückliche, „daß ich meinen Liebsten nur erblicke, um ihn wieder zu verlieren.“ Der Gram erfüllte aufs neue ihr Herz, aber der Traum führte sie zum drittenmal in das Haus der Alten. Sie machte sich auf den Weg, und die weise Frau gab ihr ein goldenes Spinnrad, tröstete sie und sprach „es ist noch nicht alles vollbracht, harre bis der Vollmond kommt, dann nimm das Spinnrad, setze dich an das Ufer und spinn die Spuhle voll, und wenn du fertig bist, so stelle das Spinnrad nahe an das Wasser und du wirst sehen was geschieht.“
+
+Die Frau befolgte alles genau. Sobald der Vollmond sich zeigte, trug sie das goldene Spinnrad an das Ufer und spann emsig bis der Flachs zu Ende und die Spuhle mit dem Faden ganz angefüllt war. Kaum aber stand das Rad am Ufer, so brauste es noch heftiger als sonst in der Tiefe des Wassers, eine mächtige Welle eilte herbei und trug das Rad mit sich fort. Alsbald stieg mit einem Wasserstrahl der Kopf und der ganze Leib des Mannes in die Höhe. Schnell sprang er ans Ufer, faßte seine Frau an der Hand und entfloh. Aber kaum hatten sie sich eine kleine Strecke entfernt, so erhob sich mit entsetzlichem Brausen der ganze Weiher und strömte mit reißender Gewalt in das weite Feld hinein. Schon sahen die Fliehenden ihren Tod vor Augen, da rief die Frau in ihrer Angst die Hilfe der Alten an, und in dem Augenblick waren sie verwandelt, sie in eine Kröte, er in einen Frosch. Die Flut, die sie erreicht hatte, konnte sie nicht tödten, aber sie riß sie beide von einander und führte sie weit weg.
+
+Als das Wasser sich verlaufen hatte und beide wieder den trocknen Boden berührten, so kam ihre menschliche Gestalt zurück. Aber keiner wußte wo das andere geblieben war; sie befanden sich unter fremden Menschen, die ihre Heimat nicht kannten. Hohe Berge und tiefe Thäler lagen zwischen ihnen. Um sich das Leben zu erhalten mußten beide die Schafe hüten. Sie trieben lange Jahre ihre Herden durch Feld und Wald und waren voll Trauer und Sehnsucht.
+
+Als wieder einmal der Frühling aus der Erde hervorgebrochen war, zogen beide an einem Tag mit ihren Herden aus und der Zufall wollte daß sie einander entgegen zogen. Er erblickte an einem fernen Bergesabhang eine Herde und trieb seine Schafe nach der Gegend hin. Sie kamen in einem Thal zusammen, aber sie erkannten sich nicht, doch freuten sie sich daß sie nicht mehr so einsam waren. Von nun an trieben sie jeden Tag ihre Herde neben einander: sie sprachen nicht viel, aber sie fühlten sich getröstet. Eines Abends, als der Vollmond am Himmel schien und die Schafe schon ruhten, holte der Schäfer die Flöte aus seiner Tasche und blies ein schönes aber trauriges Lied. Als er fertig war, bemerkte er daß die Schäferin bitterlich weinte. „Warum weinst du?“ fragte er. „Ach,“ antwortete sie, „so schien auch der Vollmond als ich zum letztenmal dieses Lied auf der Flöte blies und das Haupt meines Liebsten aus dem Wasser hervorkam.“ Er sah sie an und es war ihm als fiele eine Decke von den Augen, er erkannte seine liebste Frau: und als sie ihn anschaute und der Mond auf sein Gesicht schien, erkannte sie ihn auch. Sie umarmten und küßten sich, und ob sie glückselig waren braucht keiner zu fragen. 
+    
+    
+    
+    
+    
+    
+Es hatte ein Mann einen Esel, der schon lange Jahre die Säcke unverdrossen zur Mühle getragen hatte, dessen Kräfte aber nun zu Ende giengen, so daß er zur Arbeit immer untauglicher ward. Da dachte der Herr daran, ihn aus dem Futter zu schaffen, aber der Esel merkte daß kein guter Wind wehte, lief fort und machte sich auf den Weg nach Bremen: dort, meinte er, könnte er ja Stadtmusikant werden. Als er ein Weilchen fortgegangen war, fand er einen Jagdhund auf dem Wege liegen, der jappte wie einer, der sich müde gelaufen hat. „Nun, was jappst du so, Packan?“ fragte der Esel. „Ach,“ sagte der Hund, „weil ich alt bin und jeden Tag schwächer werde, auch auf der Jagd nicht mehr fort kann, hat mich mein Herr wollen todt schlagen, da hab ich Reißaus genommen; aber womit soll ich nun mein Brot verdienen?“ „Weißt du was,“ sprach der Esel, „ich gehe nach Bremen und werde dort Stadtmusikant, geh mit und laß dich auch bei der Musik annehmen. Ich spiele die Laute, und du schlägst die Pauken.“ Der Hund wars zufrieden, und sie giengen weiter. Es dauerte nicht lange, so saß da eine Katze an dem Weg und machte ein Gesicht wie drei Tage Regenwetter. „Nun, was ist dir in die Quere gekommen, alter Bartputzer?“ sprach der Esel. „Wer kann da lustig sein, wenns einem an den Kragen geht,“ antwortete die Katze, „weil ich nun zu Jahren komme, meine Zähne stumpf werden, und ich lieber hinter dem Ofen sitze und spinne, als nach Mäusen herum jage, hat mich meine Frau ersäufen wollen; ich habe mich zwar noch fortgemacht, aber nun ist guter Rath theuer: wo soll ich hin?“ „Geh mit uns nach Bremen, du verstehst dich doch auf die Nachtmusik, da kannst du ein Stadtmusikant werden.“ Die Katze hielt das für gut und gieng mit. Darauf kamen die drei Landesflüchtigen an einem Hof vorbei, da saß auf dem Thor der Haushahn und schrie aus Leibeskräften. „Du schreist einem durch Mark und Bein,“ sprach der Esel, „was hast du vor?“ „Da hab ich gut Wetter prophezeit,“ sprach der Hahn, „weil unserer lieben Frauen Tag ist, wo sie dem Christkindlein die Hemdchen gewaschen hat und sie trocknen will; aber weil Morgen zum Sonntag Gäste kommen, so hat die Hausfrau doch kein Erbarmen, und hat der Köchin gesagt sie wollte mich Morgen in der Suppe essen, und da soll ich mir heut Abend den Kopf abschneiden lassen. Nun schrei ich aus vollem Hals, so lang ich noch kann.“ „Ei was, du Rothkopf,“ sagte der Esel, „zieh lieber mit uns fort, wir gehen nach Bremen, etwas besseres als den Tod findest du überall; du hast eine gute Stimme, und wenn wir zusammen musicieren, so muß es eine Art haben.“ Der Hahn ließ sich den Vorschlag gefallen, und sie giengen alle viere zusammen fort.
+
+Sie konnten aber die Stadt Bremen in einem Tag nicht erreichen und kamen Abends in einen Wald, wo sie übernachten wollten. Der Esel und der Hund legten sich unter einen großen Baum, die Katze und der Hahn machten sich in die Äste, der Hahn aber flog bis in die Spitze, wo es am sichersten für ihn war. Ehe er einschlief, sah er sich noch einmal nach allen vier Winden um, da däuchte ihn er sähe in der Ferne ein Fünkchen brennen und rief seinen Gesellen zu es müßte nicht gar weit ein Haus sein, denn es scheine ein Licht. Sprach der Esel „so müssen wir uns aufmachen und noch hingehen, denn hier ist die Herberge schlecht.“ Der Hund meinte ein paar Knochen und etwas Fleisch dran, thäten ihm auch gut. Also machten sie sich auf den Weg nach der Gegend, wo das Licht war, und sahen es bald heller schimmern, und es ward immer größer, bis sie vor ein hell erleuchtetes Räuberhaus kamen. Der Esel, als der größte, näherte sich dem Fenster und schaute hinein. „Was siehst du, Grauschimmel?“ fragte der Hahn. „Was ich sehe?“ antwortete der Esel, „einen gedeckten Tisch mit schönem Essen und Trinken, und Räuber sitzen daran und lassens sich wohl sein.“ „Das wäre was für uns“ sprach der Hahn. „Ja, ja, ach, wären wir da!“ sagte der Esel. Da rathschlagten die Thiere wie sie es anfangen müßten, um die Räuber hinaus zu jagen und fanden endlich ein Mittel. Der Esel mußte sich mit den Vorderfüßen auf das Fenster stellen, der Hund auf des Esels Rücken springen, die Katze auf den Hund klettern, und endlich flog der Hahn hinauf, und setzte sich der Katze auf den Kopf. Wie das geschehen war, fiengen sie auf ein Zeichen insgesammt an ihre Musik zu machen: der Esel schrie, der Hund bellte, die Katze miaute und der Hahn krähte; dann stürzten sie durch das Fenster in die Stube hinein daß die Scheiben klirrten. Die Räuber fuhren bei dem entsetzlichen Geschrei in die Höhe, meinten nicht anders als ein Gespenst käme herein und flohen in größter Furcht in den Wald hinaus. Nun setzten sich die vier Gesellen an den Tisch, nahmen mit dem vorlieb, was übrig geblieben war, und aßen als wenn sie vier Wochen hungern sollten.
+
+Wie die vier Spielleute fertig waren, löschten sie das Licht aus und suchten sich eine Schlafstätte, jeder nach seiner Natur und Bequemlichkeit. Der Esel legte sich auf den Mist, der Hund hinter die Thüre, die Katze auf den Herd bei die warme Asche, und der Hahn setzte sich auf den Hahnenbalken: und weil sie müde waren von ihrem langen Weg, schliefen sie auch bald ein. Als Mitternacht vorbei war, und die Räuber von weitem sahen daß kein Licht mehr im Haus brannte, auch alles ruhig schien, sprach der Hauptmann „wir hätten uns doch nicht sollen ins Bockshorn jagen lassen,“ und hieß einen hingehen und das Haus untersuchen. Der Abgeschickte fand alles still, gieng in die Küche, ein Licht anzuzünden, und weil er die glühenden, feurigen Augen der Katze für lebendige Kohlen ansah, hielt er ein Schwefelhölzchen daran, daß es Feuer fangen sollte. Aber die Katze verstand keinen Spaß, sprang ihm ins Gesicht, spie und kratzte. Da erschrack er gewaltig, lief und wollte zur Hinterthüre hinaus, aber der Hund, der da lag, sprang auf und biß ihn ins Bein: und als er über den Hof an dem Miste vorbei rannte, gab ihm der Esel noch einen tüchtigen Schlag mit dem Hinterfuß; der Hahn aber, der vom Lärmen aus dem Schlaf geweckt und munter geworden war, rief vom Balken herab „kikeriki!“ Da lief der Räuber, was er konnte, zu seinem Hauptmann zurück und sprach „ach, in dem Haus sitzt eine gräuliche Hexe, die hat mich angehaucht und mit ihren langen Fingern mir das Gesicht zerkratzt: und vor der Thüre steht ein Mann mit einem Messer, der hat mich ins Bein gestochen: und auf dem Hof liegt ein schwarzes Ungethüm, das hat mit einer Holzkeule auf mich losgeschlagen: und oben auf dem Dache, da sitzt der Richter, der rief bringt mir den Schelm her. Da machte ich daß ich fortkam.“ Von nun an getrauten sich die Räuber nicht weiter in das Haus, den vier Bremer Musikanten gefiels aber so wohl darin, daß sie nicht wieder heraus wollten. Und der das zuletzt erzählt hat, dem ist der Mund noch warm. 
+    
+    
+    
+    
+    Ein armer Holzhauer lebte mit seiner Frau und drei Töchtern in einer kleinen Hütte an dem Rande eines einsamen Waldes. Eines Morgens, als er wieder an seine Arbeit wollte, sagte er zu seiner Frau, „laß mir mein Mittagsbrot von dem ältesten Mädchen hinaus in den Wald bringen, ich werde sonst nicht fertig. Und damit es sich nicht verirrt,“ setzte er hinzu, „so will ich einen Beutel mit Hirsen mitnehmen und die Körner auf den Weg streuen.“ Als nun die Sonne mitten über dem Walde stand, machte sich das Mädchen mit einem Topf voll Suppe auf den Weg. Aber die Feld- und Waldsperlinge, die Lerchen und Finken, Amseln und Zeisige hatten den Hirsen schon längst aufgepickt, und das Mädchen konnte die Spur nicht finden. Da gieng es auf gut Glück immer fort, bis die Sonne sank und die Nacht einbrach. Die Bäume rauschten in der Dunkelheit, die Eulen schnarrten, und es fieng an ihm angst zu werden. Da erblickte es in der Ferne ein Licht, das zwischen den Bäumen blinkte. „Dort sollten wohl Leute wohnen,“ dachte es, „die mich über Nacht behalten,“ und gieng auf das Licht zu. Nicht lange so kam es an ein Haus, dessen Fenster erleuchtet waren. Es klopfte an, und eine rauhe Stimme rief von innen „herein.“ Das Mädchen trat auf die dunkle Diele, und pochte an der Stubenthür. „Nur herein“ rief die Stimme, und als es öffnete, saß da ein alter eisgrauer Mann an dem Tisch, hatte das Gesicht auf die beiden Hände gestützt, und sein weißer Bart floß über den Tisch herab fast bis auf die Erde. Am Ofen aber lagen drei Thiere, ein Hühnchen, ein Hähnchen und eine buntgescheckte Kuh. Das Mädchen erzählte dem Alten sein Schicksal und bat um ein Nachtlager. Der Mann sprach
+
+„schön Hühnchen,
+schön Hähnchen,
+und du schöne bunte Kuh,
+was sagst du dazu?“
+
+„duks!“ antworteten die Thiere: und das mußte wohl heißen „wir sind es zufrieden,“ denn der Alte sprach weiter „hier ist Hülle und Fülle, geh hinaus an den Herd und koch uns ein Abendessen.“ Das Mädchen fand in der Küche Überfluß an allem und kochte eine gute Speise, aber an die Thiere dachte es nicht. Es trug die volle Schüssel auf den Tisch, setzte sich zu dem grauen Mann, aß und stillte seinen Hunger. Als es satt war, sprach es „aber jetzt bin ich müde, wo ist ein Bett, in das ich mich legen und schlafen kann?“ Die Thiere antworteten
+
+„du hast mit ihm gegessen,
+du hast mit ihm getrunken,
+du hast an uns gar nicht gedacht,
+nun sieh auch wo du bleibst die Nacht.“
+
+Da sprach der Alte „steig nur die Treppe hinauf, so wirst du eine Kammer mit zwei Betten finden, schüttle sie auf und decke sie mit weißem Linnen, so will ich auch kommen und mich schlafen legen.“ Das Mädchen stieg hinauf, und als es die Betten geschüttelt und frisch gedeckt hatte, legte es sich in das eine, ohne weiter auf den Alten zu warten. Nach einiger Zeit aber kam der graue Mann, beleuchtete das Mädchen mit dem Licht und schüttelte mit dem Kopf. Und als er sah daß es fest eingeschlafen war, öffnete er eine Fallthüre und ließ es in den Keller sinken.
+
+Der Holzhauer kam am späten Abend nach Haus und machte seiner Frau Vorwürfe, daß sie ihn den ganzen Tag habe hungern lassen. „Ich habe keine Schuld“ antwortete sie, „das Mädchen ist mit dem Mittagsessen hinausgegangen, es muß sich verirrt haben: morgen wird es schon wiederkommen.“ Vor Tag aber stand der Holzhauer auf, wollte in den Wald und verlangte die zweite Tochter sollte ihm diesmal das Essen bringen. „Ich will einen Beutel mit Linsen mitnehmen,“ sagte er, „die Körner sind größer als Hirsen, das Mädchen wird sie besser sehen und kann den Weg nicht verfehlen.“ Zur Mittagszeit trug auch das Mädchen die Speise hinaus, aber die Linsen waren verschwunden: die Waldvögel hatten sie, wie am vorigen Tag, aufgepickt und keine übrig gelassen. Das Mädchen irrte im Walde umher bis es Nacht ward, da kam es ebenfalls zu dem Haus des Alten, ward hereingerufen, und bat um Speise und Nachtlager. Der Mann mit dem weißen Barte fragte wieder die Thiere
+
+„schön Hühnchen,
+schön Hähnchen,
+und du schöne bunte Kuh,
+was sagst du dazu?“
+
+Die Thiere antworteten abermals „duks,“ und es geschah alles wie am vorigen Tag. Das Mädchen kochte eine gute Speise, aß und trank mit dem Alten und kümmerte sich nicht um die Thiere. Und als es sich nach seinem Nachtlager erkundigte, antworteten sie
+
+„du hast mit ihm gegessen,
+du hast mit ihm getrunken,
+du hast an uns gar nicht gedacht,
+nun sieh auch wo du bleibst die Nacht.“
+
+Als es eingeschlafen war, kam der Alte, betrachtete es mit Kopfschütteln und ließ es in den Keller hinab.
+
+Am dritten Morgen sprach der Holzhacker zu seiner Frau „schicke mir heute unser jüngstes Kind mit dem Essen hinaus, das ist immer gut und gehorsam gewesen, das wird auf dem rechten Weg bleiben und nicht wie seine Schwestern, die wilden Hummeln, herum schwärmen.“ Die Mutter wollte nicht und sprach „soll ich mein liebstes Kind auch noch verlieren?“ „Sei ohne Sorge,“ antwortete er, „das Mädchen verirrt sich nicht, es ist zu klug und verständig; zum Überfluß will ich Erbsen mitnehmen, und ausstreuen, die sind noch größer als Linsen und werden ihm den Weg zeigen.“ Aber als das Mädchen mit dem Korb am Arm hinaus kam, so hatten die Waldtauben die Erbsen schon im Kropf, und es wußte nicht wohin es sich wenden sollte. Es war voll Sorgen und dachte beständig daran wie der arme Vater hungern und die gute Mutter jammern würde, wenn es ausbliebe. Endlich als es finster ward, erblickte es das Lichtchen und kam an das Waldhaus. Es bat ganz freundlich sie möchten es über Nacht beherbergen, und der Mann mit dem weißen Bart fragte wieder seine Thiere
+
+„schön Hühnchen,
+schön Hähnchen,
+und du schöne bunte Kuh,
+was sagst du dazu?“
+
+„duks“ sagten sie. Da trat das Mädchen an den Ofen, wo die Thiere lagen, und liebkoste Hühnchen und Hähnchen, indem es mit der Hand über die glatten Federn hinstrich, und die bunte Kuh kraute es zwischen den Hörnern. Und als es auf Geheiß des Alten eine gute Suppe bereitet hatte und die Schüssel auf dem Tisch stand, so sprach es „soll ich mich sättigen und die guten Thiere sollen nichts haben? Draußen ist die Hülle und Fülle, erst will ich für sie sorgen.“ Da ging es, holte Gerste und streute sie dem Hühnchen und Hähnchen vor, und brachte der Kuh wohlriechendes Heu einen ganzen Arm voll. „Laßts euch schmecken, ihr lieben Thiere,“ sagte es, „und wenn ihr durstig seid, sollt ihr auch einen frischen Trunk haben.“ Dann trug es einen Eimer voll Wasser herein, und Hühnchen und Hähnchen sprangen auf den Rand, steckten den Schnabel hinein und hielten den Kopf dann in die Höhe wie die Vögel trinken, und die bunte Kuh that auch einen herzhaften Zug. Als die Thiere gefüttert waren, setzte sich das Mädchen zu dem Alten an den Tisch und aß was er ihm übrig gelassen hatte. Nicht lange so fieng Hühnchen und Hähnchen an das Köpfchen zwischen die Flügel zu stecken, und die bunte Kuh blinzelte mit den Augen. Da sprach das Mädchen „sollen wir uns nicht zur Ruhe begeben?
+
+schön Hühnchen,
+schön Hähnchen,
+und du schöne bunte Kuh,
+was sagst du dazu?“
+
+Die Thiere antworteten „duks,
+
+du hast mit uns gegessen,
+du hast mit uns getrunken,
+du hast uns alle wohl bedacht,
+wir wünschen dir eine gute Nacht.“
+
+Da gieng das Mädchen die Treppe hinauf, schüttelte die Federkissen und deckte frisches Linnen auf, und als es fertig war, kam der Alte und legte sich in das eine Bett, und sein weißer Bart reichte ihm bis an die Füße. Das Mädchen legte sich in das andere, that sein Gebet und schlief ein.
+
+Es schlief ruhig bis Mitternacht, da ward es so unruhig in dem Hause, daß das Mädchen erwachte. Da fieng es an in den Ecken zu knittern und zu knattern, und die Thüre sprang auf und schlug an die Wand: die Balken drönten, als wenn sie aus ihren Fugen gerissen würden, und es war als wenn die Treppe herab stürzte, und endlich krachte es als wenn das ganze Dach zusammen fiele. Da es aber wieder still ward und dem Mädchen nichts zu Leid geschah, so blieb es ruhig liegen und schlief wieder ein. Als es aber am Morgen bei hellem Sonnenschein aufwachte, was erblickten seine Augen? Es lag in einem großen Saal, und rings umher glänzte alles in königlicher Pracht: an den Wänden wuchsen auf grün seidenem Grund goldene Blumen in die Höhe, das Bett war von Elfenbein und die Decke darauf von rothem Sammt, und auf einem Stuhl daneben standen ein paar mit Perlen gestickte Pantoffel. Das Mädchen glaubte es wäre ein Traum, aber es traten drei reichgekleidete Diener herein und fragten was es zu befehlen hätte. „Geht nur,“ antwortete das Mädchen, „ich will gleich aufstehen und dem Alten eine Suppe kochen und dann auch schön Hühnchen, schön Hähnchen und die schöne bunte Kuh füttern.“ Es dachte der Alte wäre schon aufgestanden und sah sich nach seinem Bette um, aber er lag nicht darin, sondern ein fremder Mann. Und als es ihn betrachtete und sah daß er jung und schön war, erwachte er, richtete sich auf und sprach „ich bin ein Königssohn, und war von einer bösen Hexe verwünscht worden als ein alter eisgrauer Mann in dem Wald zu leben: niemand durfte um mich sein als meine drei Diener in der Gestalt eines Hühnchens eines Hähnchens und einer bunten Kuh. Und nicht eher sollte die Verwünschung aufhören, als bis ein Mädchen zu uns käme, so gut von Herzen, daß es nicht gegen die Menschen allein, sondern auch gegen die Thiere sich liebreich bezeigte, und das bist du gewesen, und heute um Mitternacht sind wir durch dich erlöst und das alte Waldhaus ist wieder in meinen königlichen Palast verwandelt worden.“ Und als sie aufgestanden waren, sagte der Königssohn den drei Dienern sie sollten hinfahren und Vater und Mutter des Mädchens zur Hochzeitsfeier herbei holen. „Aber wo sind meine zwei Schwestern?“ fragte das Mädchen. „Die habe ich in den Keller gesperrt, und Morgen sollen sie in den Wald geführt werden und sollen bei einem Köhler so lange als Mägde dienen, bis sie sich gebessert haben und auch die armen Thiere nicht hungern lassen.“ 
+    
+    
+    
+  
+  </pre>
+</body>
+</html>
