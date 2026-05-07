@@ -362,7 +362,7 @@ async function play() {
         };
         gainNode = audioCtx.createGain();          // Create a gain node
         gainNode.connect(audioCtx.destination);        // Connect the gain node to the destination
-        gainNode.gain.value = 0.5     
+        gainNode.gain.value = 0.25     
         //  document.getElementById("debug").innerHTML = source + " / " + audioCtx
           
         source.connect(gainNode);                     // Connect the source to the gain node
