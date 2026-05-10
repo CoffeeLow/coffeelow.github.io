@@ -376,7 +376,7 @@ async function play() {
         playing = true    
         taken = true
 		
-		seed = cyrb128(myArrayBuffer.getChannelData(0)) ^ cyrb128(myArrayBuffer.getChannelData(1))
+		seed = cyrb128(myArrayBuffer.getChannelData(0))
     }
     
     window.setTimeout(play,100)
