@@ -470,19 +470,20 @@ async function sound() {
     
 	
 	
-	
 instrumentGPU = gpu.createKernel(function(sampleRate, tone, rands, duration) {
     let freq = 440.0 * Math.pow(2.0, tone / 12.0);
     let t = this.thread.x / sampleRate;
 
-    // 1. Grundton
+    // 1. Der Anker (Grundton)
     let originalSin = Math.sin(2.0 * Math.PI * freq * t);
     
-    // 2. Morph-Faktor
-    let morph = t / (duration * 0.4);
-    if (morph > 1.0) morph = 1.0; 
+    // 2. WÄRMERES MORPHING (S-Kurve / Sigmoid)
+    // m geht von 0 bis 1, warmMorph erzeugt einen weichen Übergang
+    let m = t / (duration * 0.5); 
+    if (m > 1.0) m = 1.0;
+    let warmMorph = m * m * (3.0 - 2.0 * m); 
 
-    // 3. Rekursiver Pfad
+    // 3. Rekursiver Pfad (Die Textur)
     let y = 2.0 * Math.PI * freq * t;
     let j = 0;
     let n = Math.floor(3.0 * rands[j++]) + 1; 
@@ -510,22 +511,22 @@ instrumentGPU = gpu.createKernel(function(sampleRate, tone, rands, duration) {
     }
     y /= 2.0 * Math.PI;
 
-    // --- NEU: DYNAMISCHER ATTACK (Hart vs. Weich) ---
+    // --- NEU: WARMER MIX & GLUE ---
+    // Wir dämpfen y im Bassbereich, damit es nicht mit dem originalSin "kämpft"
+    let textureGain = warmMorph * 0.3; 
+    let mixedSignal = (originalSin * 0.8) + (y * textureGain);
+    
+    // Saturation-Glue: Schweißt die Wellen zusammen und rundet Spitzen ab
+    mixedSignal = Math.atan(mixedSignal * 1.6);
+
+    // --- DYNAMISCHER ATTACK ---
     let amplitude = 1.0;
     let attackType = rands[j++]; 
-    
     if (attackType < 0.5) {
-        // Weicher Einschwingvorgang (Swell)
-        let attackTime = rands[j++] * 0.2 + 0.01; // Zwischen 0.01s und 0.21s
-        if (t < attackTime) {
-            amplitude = t / attackTime;
-        }
+        let attackTime = rands[j++] * 0.2 + 0.02; 
+        if (t < attackTime) amplitude = t / attackTime;
     } else {
-        // Harter Anschlag (Instant)
-        // Nur ein minimaler Fade-In (2ms) gegen Knacksen
-        if (t < 0.002) {
-            amplitude = t / 0.002;
-        }
+        if (t < 0.002) amplitude = t / 0.002;
     }
 
     // --- RELEASE ---
@@ -535,13 +536,13 @@ instrumentGPU = gpu.createKernel(function(sampleRate, tone, rands, duration) {
         amplitude *= Math.exp(-t / (duration * 0.5));
     }
 
-    // --- FINAL MIX MIT DAMPING ---
-    let damping = amplitude; 
-    let mixedSignal = (originalSin * (1.0 - (morph * 0.35 * damping))) + (y * (morph * 0.35 * damping));
+    // --- FINAL DAMPING (Obertöne sterben zuerst) ---
+    // Wir multiplizieren nur den Texture-Anteil am Ende nochmal mit der Amplitude
+    // Dadurch bleibt der Sinus-Ausklang reiner.
+    let finalSignal = (originalSin * 0.7) + (y * textureGain * amplitude);
 
-    return mixedSignal * amplitude;
+    return finalSignal * amplitude;
 }).setOutput([audioCtx.sampleRate]);
-
 	
 	
 	
