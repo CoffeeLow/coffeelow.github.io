@@ -513,40 +513,40 @@ async function sound() {
 			let k = rands[j++]
 
 
-		// 1. Sinus (Fundamental)
-        if (k < 0.15) {
+		// 1. Sinus (Rein & Klar)
+        if (k < 0.14) {
             y = Math.sin(y);
         } 
-        // 2. Rechteck (Square)
-        else if (k < 0.30) {
+        // 2. Rechteck (Hohl & Aggressiv)
+        else if (k < 0.28) {
             y = Math.sin(y) >= 0 ? 1.0 : -1.0;
         } 
-        // 3. Sägezahn (Sawtooth)
-        else if (k < 0.45) {
+        // 3. Sägezahn (Obertonreich)
+        else if (k < 0.42) {
             y = 2.0 * (y / (2.0 * Math.PI) - Math.floor(0.5 + y / (2.0 * Math.PI)));
         } 
-        // 4. Dreieck (Triangle)
-        else if (k < 0.60) {
+        // 4. Dreieck (Weich & Harmonisch)
+        else if (k < 0.56) {
             y = Math.abs(4.0 * (y / (2.0 * Math.PI) - Math.floor(y / (2.0 * Math.PI) + 0.5))) - 1.0;
         } 
-        // 5. Tangent Distortion (Aggressiv/Metallisch)
+        // 5. Parabel (Warm & Analog - NEU)
         else if (k < 0.70) {
-            y = Math.tan(y * 0.25); // Faktor 0.25 gegen zu schnelles Clipping
-            if (y > 1.0) y = 1.0; if (y < -1.0) y = -1.0;
-        } 
-        // 6. Bitcrusher / Quantisierung
-        else if (k < 0.85) {
-            let steps = 4.0; 
-            y = Math.floor(Math.sin(y) * steps) / steps;
-        } 
-        // 7. Pseudo-Noise / Glitch
-        else {
-            y = Math.sin(y * rands[j++]) * 43758.5453;
-            y = y - Math.floor(y); // fract() Ersatz
-            y = y * 2.0 - 1.0;
+            let p = (y / (2.0 * Math.PI)) - Math.floor(y / (2.0 * Math.PI));
+            y = 8.0 * p * (1.0 - p) - 1.0;
         }
-
-
+        // 6. Quantisierung (Lo-Fi / Bitcrushing)
+        else if (k < 0.85) {
+            let steps = Math.floor(rands[j++] * 16.0) + 2.0; 
+            y = Math.sin(y); // Nutze Sinus als Basis für Crush
+            y = Math.floor(y * steps) / steps;
+        }
+        // 7. Tangent Distortion (Extremes Waveshaping)
+        else {
+            y = Math.tan(y * 0.2); 
+            if (y > 1.2) y = 1.2; 
+            if (y < -1.2) y = -1.2;
+            y /= 1.2;
+        }
 
 
 			/*
