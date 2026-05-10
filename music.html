@@ -470,127 +470,17 @@ async function sound() {
     
 	
 	
-	/*
-	
-	waveGPU = gpu.createKernel(function(len,tone,rands,duration) {		
-		let omega = (((440.0 * this.thread.x) / len) * Math.pow(2.0,(tone) / 12.0)) * Math.PI;
-			
-		let a = 0	
-		let j = 0
-		let n = 7 * rands[0] + 1
-		for(let i = 1;i <= n;++i) {
-			let b = 0
-			let vibrato = Math.sin(omega /64 * rands[++j]) * rands[++j]
-			let vibrato2 = Math.sin(omega/64 * rands[++j]) * rands[++j]
-			let vibrato3 = Math.sin(omega/64 * rands[++j]) * rands[++j]
-			let r0 = rands[++j]
-			let r1 = rands[++j]
-			let r2 = rands[++j]
-			b += r0 * mypow(Math.sin((omega * i + vibrato)+rands[++j]),rands[++j] < 0.5 ? rands[++j] : 1 / rands[++j]);
-			b += r1 * Math.sign(Math.sin(omega * i + vibrato2+rands[++j]));
-		b += r2 * sawtooth(omega * i + vibrato3 + rands[++j])
-		//	a += rands[++j] / i * b / (r0 + r1 + r2)
-				a += b * rands[j++]
-				
-		}
-		//a *= Math.atan(this.thread.x / len * 50 * rands[++j]) + Math.PI / 2
-		a *= Math.atan(-(4 + 80 * rands[++j]) * (this.thread.x / len - duration)) + Math.PI / 2
-		
-		return a
- 	}).setOutput([audioCtx.sampleRate / 2]); // over 1 second
-
 	
 	
-	instrumentGPU = gpu.createKernel(function(sampleRate,tone,rands,duration) {
-		let freq = 440.0 * Math.pow(2.0,tone / 12.0)
-		let t = this.thread.x / sampleRate;
-
-		let y = 2 * Math.PI * freq * t
-		let j = 0
-		//let n = Math.floor(10 * rands[j++] * rands[j++] * rands[j++]) + 1
-		let n = Math.floor(3 * rands[j++]) + 1; // Maximal 3 statt 10 Iterationen
-		//n = 1
-		for(let i = 0;i < n;++i) {
-			let k = rands[j++]
-
-
-		// 1. Sinus (Rein & Klar)
-        if (k < 0.14) {
-            y = Math.sin(y);
-        } 
-        // 2. Rechteck (Hohl & Aggressiv)
-        else if (k < 0.28) {
-            y = Math.sin(y) >= 0 ? 1.0 : -1.0;
-        } 
-        // 3. Sägezahn (Obertonreich)
-        else if (k < 0.42) {
-            y = 2.0 * (y / (2.0 * Math.PI) - Math.floor(0.5 + y / (2.0 * Math.PI)));
-        } 
-        // 4. Dreieck (Weich & Harmonisch)
-        else if (k < 0.56) {
-            y = Math.abs(4.0 * (y / (2.0 * Math.PI) - Math.floor(y / (2.0 * Math.PI) + 0.5))) - 1.0;
-        } 
-        // 5. Parabel (Warm & Analog - NEU)
-        else if (k < 0.70) {
-            let p = (y / (2.0 * Math.PI)) - Math.floor(y / (2.0 * Math.PI));
-            y = 8.0 * p * (1.0 - p) - 1.0;
-        }
-        // 6. Quantisierung (Lo-Fi / Bitcrushing)
-        else if (k < 0.85) {
-            let steps = Math.floor(rands[j++] * 16.0) + 2.0; 
-            y = Math.sin(y); // Nutze Sinus als Basis für Crush
-            y = Math.floor(y * steps) / steps;
-        }
-        // 7. Tangent Distortion (Extremes Waveshaping)
-        else {
-            y = Math.tan(y * 0.2); 
-            if (y > 1.2) y = 1.2; 
-            if (y < -1.2) y = -1.2;
-            y /= 1.2;
-        }
-
-
-		
-			if(k >= 0 && k < 0.333) {
-				y = Math.sin(y)
-			} else if(k >= 0.333 && k < 0.666) {
-				y = rectangle(y)
-			} else if(k >= 0.666 && k <= 1) {
-				y = sawtooth(y)
-			} 
-
-			y *= 1.5 * Math.PI
-		}
-		y /= 2 * Math.PI
-		
-		let morph = t / duration; 
-		y = (y * morph) + (originalSin * (1.0 - morph));
-		
-		let amplitude = 1.
-		if (rands[j++] < 0.5)
-		if (t < 0.1) amplitude = t / 0.1;
-		y *= amplitude
-		
-		if(rands[j++] < 0.5) {
-			y *= Math.atan(-80 * rands[j++] * (this.thread.x / sampleRate - duration)) + Math.PI / 2
-			y /= Math.PI
-		} else
-			y *= Math.exp(-this.thread.x / sampleRate / duration) // * Math.PI
-			
-		return y
-    }).setOutput([audioCtx.sampleRate])
-	*/
-
-	instrumentGPU = gpu.createKernel(function(sampleRate, tone, rands, duration) {
+instrumentGPU = gpu.createKernel(function(sampleRate, tone, rands, duration) {
     let freq = 440.0 * Math.pow(2.0, tone / 12.0);
     let t = this.thread.x / sampleRate;
 
-    // 1. Der Anker: Ein sauberer Sinus
+    // 1. Grundton (Direkt berechnet, damit 'originalSin' definiert ist)
     let originalSin = Math.sin(2.0 * Math.PI * freq * t);
     
-    // 2. Der Morph-Faktor (0.0 bis 1.0)
-    // Erreicht nach 50% der duration sein Maximum
-    let morph = t / (duration * 0.5);
+    // 2. Morph-Faktor (Zeitliche Entwicklung)
+    let morph = t / (duration * 0.4);
     if (morph > 1.0) morph = 1.0; 
 
     // 3. Rekursiver Pfad (Die Textur)
@@ -604,32 +494,33 @@ async function sound() {
         if (k < 0.14) {
             y = Math.sin(y);
         } else if (k < 0.28) {
+            // Inline-Rechteck
             y = Math.sin(y) >= 0 ? 1.0 : -1.0;
         } else if (k < 0.42) {
+            // Inline-Sägezahn
             y = 2.0 * (y / (2.0 * Math.PI) - Math.floor(0.5 + y / (2.0 * Math.PI)));
         } else if (k < 0.56) {
+            // Inline-Dreieck
             y = Math.abs(4.0 * (y / (2.0 * Math.PI) - Math.floor(y / (2.0 * Math.PI) + 0.5))) - 1.0;
         } else if (k < 0.70) {
+            // Inline-Parabel
             let p = (y / (2.0 * Math.PI)) - Math.floor(y / (2.0 * Math.PI));
             y = 8.0 * p * (1.0 - p) - 1.0;
         } else if (k < 0.85) {
+            // Inline-Quantisierung
             let steps = Math.floor(rands[j++] * 12.0) + 4.0;
             y = Math.floor(Math.sin(y) * steps) / steps;
         } else {
+            // Inline-Tangent
             y = Math.atan(Math.tan(y * 0.2)); 
         }
         y *= 1.5 * Math.PI; 
     }
     y /= 2.0 * Math.PI;
 
-    // --- DYNAMISCHER MIX (MORPH) ---
-    // Wir blenden den modulierten Teil (y) basierend auf dem morph-Wert ein
-    // mixedSignal startet bei 100% Sinus und wandert zu einem Mix
-    let mixedSignal = (originalSin * (1.0 - (morph * 0.4))) + (y * (morph * 0.4));
-
     // --- ENVELOPE ---
     let amplitude = 1.0;
-    if (t < 0.05) amplitude = t / 0.05; // Attack
+    if (t < 0.05) amplitude = t / 0.05; 
 
     if (rands[j++] < 0.5) {
         amplitude *= (Math.atan(-100.0 * (t - (duration - 0.05))) + (Math.PI / 2.0)) / Math.PI;
@@ -637,141 +528,15 @@ async function sound() {
         amplitude *= Math.exp(-t / (duration * 0.5));
     }
 
+    // --- FINAL MIX MIT DAMPING ---
+    let damping = amplitude; 
+    let mixedSignal = (originalSin * (1.0 - (morph * 0.35 * damping))) + (y * (morph * 0.35 * damping));
+
     return mixedSignal * amplitude;
 }).setOutput([audioCtx.sampleRate]);
-	
-	
-	/*
-	sawtoothGPU = gpu.createKernel(function(sampleRate,tone,rands,duration) {
-    
-		let freq = 440.0 * Math.pow(2.0,tone / 12.0)
-		let t = this.thread.x / sampleRate;
-
-		 let j = 0
-	
-    let amplitude = 1.
- 	if (rands[j++] < 0.5)
-    if (t < 0.1) amplitude = t / 0.1;
-    
-   let y = sawtooth(2 * Math.PI * freq * t) * amplitude;
-    	
-		if(rands[j++] < 0.5)
-		     y *= Math.atan(-80 * rands[j++] * (this.thread.x / sampleRate - duration)) + Math.PI / 2
-			else
-			       y *= Math.exp(-this.thread.x / sampleRate / duration) * Math.PI
-    // Ein simpler Tiefpassfilter-Effekt (Bratsche ist dunkler als Violine)
-    return y / Math.PI / 4
-}).setOutput([audioCtx.sampleRate]);
-
-	
-	
-	
-	
-// Der Kernel berechnet die Amplitude für jeden Zeitschritt parallel
- sineGPU = gpu.createKernel(function(sampleRate,tone,rands,duration) {
-    
- 
- 	const freq = 440.0 * Math.pow(2.0,tone / 12.0)
-
-	const t = this.thread.x / sampleRate;
-    let j = 0
-	
-    // Grundton (Sinus)
-    const fundamental = Math.sin(2 * Math.PI * freq * t);
-    
-    // Harmonische (Flöten-Charakteristik: schwache Obertöne)
-    const harmonic2 = 0.1 *  Math.sin(2 * Math.PI * freq * 2 * t);
-    const harmonic3 = 0.05 * Math.sin(2 * Math.PI * freq * 3 * t);
-    
-    // Hauch-Rauschen (simuliert durch schnelle Sinus-Oszillation)
-    const breath = Math.sin(t * 15000.0) * 0.02
-    
-    // ADSR - Einfaches Einschwingen (Attack)
-    let amplitude = 1.
- 	if (rands[j++] < 0.5)
-    if (t < 0.1) amplitude = t / 0.1;
-    
-    let y = (fundamental ) * amplitude;
-    	if(rands[j++] < 0.5)
-    	 y *= Math.atan(-(4 + 80 * rands[j++]) * (this.thread.x / sampleRate - duration)) + Math.PI / 2
-		     else
-    		y *= Math.exp(-this.thread.x / sampleRate / duration) * Math.PI
- 	return y / Math.PI
-}).setOutput([audioCtx.sampleRate]); // Generiert 1 Sekunde Audio
-	
 
 
 
-
-
-
-
- sineOfSineGPU = gpu.createKernel(function(sampleRate,tone,rands,duration) {
-    
- 
- 	const freq = 440.0 * Math.pow(2.0,tone / 12.0)
-
-	const t = this.thread.x / sampleRate;
-    let j = 0
-	
-    // Grundton (Sinus)
-    const fundamental = Math.sin(2 * Math.PI * freq * t);
-    
-    // Harmonische (Flöten-Charakteristik: schwache Obertöne)
-    const harmonic2 = 0.1 *  Math.sin(2 * Math.PI * freq * 2 * t);
-    const harmonic3 = 0.05 * Math.sin(2 * Math.PI * freq * 3 * t);
-    
-    // Hauch-Rauschen (simuliert durch schnelle Sinus-Oszillation)
-    const breath = Math.sin(t * 15000.0) * 0.02
-    
-    // ADSR - Einfaches Einschwingen (Attack)
-    let amplitude = 1.
- 	if (rands[j++] < 0.5)
-    if (t < 0.1) amplitude = t / 0.1;
-    
-    let y = Math.sin(fundamental  * Math.PI) * amplitude;
- 
- if(rands[j++] < 0.5)
-    	 y *= Math.atan(-(4 + 80 * rands[j++]) * (this.thread.x / sampleRate - duration)) + Math.PI / 2
-		     else
-    		y *= Math.exp(-this.thread.x / sampleRate / duration) * Math.PI
- 	return y / Math.PI
-}).setOutput([audioCtx.sampleRate]); // Generiert 1 Sekunde Audio
-
-
-
-
-
-
-
-
-	
-	 //die Amplitude für jeden Zeitschritt parallel
- rectangleGPU = gpu.createKernel(function(sampleRate,tone,rands,duration) {
-    
- 
- 	const freq = 440.0 * Math.pow(2.0,tone / 12.0)
-
-	const t = this.thread.x / sampleRate;
-    let j = 0
-	    
-    // ADSR - Einfaches Einschwingen (Attack)
-    let amplitude = 1.
- 	if (rands[j++] < 0.5)
-    if (t < 0.1) amplitude = t / 0.1;
-    
-    let y = rectangle(2 * Math.PI * freq * t) * amplitude;
-    	if(rands[j++] < 0.5)
-    	 y *= Math.atan(-(4 + 80 * rands[j++]) * (this.thread.x / sampleRate - duration)) + Math.PI / 2
-		     else
-    		y *= Math.exp(-this.thread.x / sampleRate / duration) * Math.PI
- 	return y / Math.PI / 3
-}).setOutput([audioCtx.sampleRate]); // Generiert 1 Sekunde Audio
-	
-	
-*/
-	
-	
 	
 	
 	
