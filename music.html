@@ -562,7 +562,10 @@ async function sound() {
 			y *= 2 * Math.PI
 		}
 		y /= 2 * Math.PI
-
+		
+		let originalSin = Math.sin(2 * Math.PI * freq * t);
+		y = y * 0.3 + originalSin * 0.7
+		
 		let amplitude = 1.
 		if (rands[j++] < 0.5)
 		if (t < 0.1) amplitude = t / 0.1;
