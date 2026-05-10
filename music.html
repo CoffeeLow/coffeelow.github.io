@@ -471,57 +471,64 @@ async function sound() {
 	
 	
 	
-	
 instrumentGPU = gpu.createKernel(function(sampleRate, tone, rands, duration) {
     let freq = 440.0 * Math.pow(2.0, tone / 12.0);
     let t = this.thread.x / sampleRate;
 
-    // 1. Grundton (Direkt berechnet, damit 'originalSin' definiert ist)
+    // 1. Grundton
     let originalSin = Math.sin(2.0 * Math.PI * freq * t);
     
-    // 2. Morph-Faktor (Zeitliche Entwicklung)
+    // 2. Morph-Faktor
     let morph = t / (duration * 0.4);
     if (morph > 1.0) morph = 1.0; 
 
-    // 3. Rekursiver Pfad (Die Textur)
+    // 3. Rekursiver Pfad
     let y = 2.0 * Math.PI * freq * t;
     let j = 0;
     let n = Math.floor(3.0 * rands[j++]) + 1; 
 
     for (let i = 0; i < n; ++i) {
         let k = rands[j++];
-
         if (k < 0.14) {
             y = Math.sin(y);
         } else if (k < 0.28) {
-            // Inline-Rechteck
             y = Math.sin(y) >= 0 ? 1.0 : -1.0;
         } else if (k < 0.42) {
-            // Inline-Sägezahn
             y = 2.0 * (y / (2.0 * Math.PI) - Math.floor(0.5 + y / (2.0 * Math.PI)));
         } else if (k < 0.56) {
-            // Inline-Dreieck
             y = Math.abs(4.0 * (y / (2.0 * Math.PI) - Math.floor(y / (2.0 * Math.PI) + 0.5))) - 1.0;
         } else if (k < 0.70) {
-            // Inline-Parabel
             let p = (y / (2.0 * Math.PI)) - Math.floor(y / (2.0 * Math.PI));
             y = 8.0 * p * (1.0 - p) - 1.0;
         } else if (k < 0.85) {
-            // Inline-Quantisierung
             let steps = Math.floor(rands[j++] * 12.0) + 4.0;
             y = Math.floor(Math.sin(y) * steps) / steps;
         } else {
-            // Inline-Tangent
             y = Math.atan(Math.tan(y * 0.2)); 
         }
         y *= 1.5 * Math.PI; 
     }
     y /= 2.0 * Math.PI;
 
-    // --- ENVELOPE ---
+    // --- NEU: DYNAMISCHER ATTACK (Hart vs. Weich) ---
     let amplitude = 1.0;
-    if (t < 0.05) amplitude = t / 0.05; 
+    let attackType = rands[j++]; 
+    
+    if (attackType < 0.5) {
+        // Weicher Einschwingvorgang (Swell)
+        let attackTime = rands[j++] * 0.2 + 0.01; // Zwischen 0.01s und 0.21s
+        if (t < attackTime) {
+            amplitude = t / attackTime;
+        }
+    } else {
+        // Harter Anschlag (Instant)
+        // Nur ein minimaler Fade-In (2ms) gegen Knacksen
+        if (t < 0.002) {
+            amplitude = t / 0.002;
+        }
+    }
 
+    // --- RELEASE ---
     if (rands[j++] < 0.5) {
         amplitude *= (Math.atan(-100.0 * (t - (duration - 0.05))) + (Math.PI / 2.0)) / Math.PI;
     } else {
@@ -534,8 +541,6 @@ instrumentGPU = gpu.createKernel(function(sampleRate, tone, rands, duration) {
 
     return mixedSignal * amplitude;
 }).setOutput([audioCtx.sampleRate]);
-
-
 
 	
 	
