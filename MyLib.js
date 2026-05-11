@@ -31,9 +31,10 @@ class Chess {
     }
 
     write() {
-        document.write("<fieldset style='display:inline-block;'><legend>" + this.name() + 
+        document.write("<fieldset style='display:inline-block;position:relative'><legend>" + this.name() + 
             " (<input type='checkbox' id='" + this.cvID + "3'> Coop)</legend>");
         document.write("<canvas width=300 height=300 id='" + this.cvID + "' style='border:2px solid #333'></canvas>");
+		document.write("<video id='" + this.cvID + "thinking' autoplay='true' loop style='z-Index:10;width:100px;height:100px;position:absolute;top:100px;left:100px;visibility:hidden'><source src='thinking.mp4' type='video/mp4'></source></video>")
         document.write("<br>Tiefe: <select id='" + this.cvID + "1'><option value=1>1</option><option value=2>2</option><option value=3>3</option><option selected value=4>4</option></select> ");
         document.write("<button id='" + this.cvID + "2'>Vorschlag</button>");
         document.write("<div id='" + this.cvID + "0' style='font-family:sans-serif;font-size:12px;margin-top:5px;'></div></fieldset>");
@@ -42,7 +43,13 @@ class Chess {
 
         const canvas = document.getElementById(this.cvID);
         document.getElementById(this.cvID + "3").onclick = (e) => this._team = e.target.checked;
-        document.getElementById(this.cvID + "2").onclick = () => this.propose(parseInt(document.getElementById(this.cvID + '1').value));
+        document.getElementById(this.cvID + "2").onclick = (() => {
+			document.getElementById(this.cvID + "thinking").style.visibility = "visible"
+			window.setTimeout((() => {
+				this.propose(parseInt(document.getElementById(this.cvID + '1').value));
+				document.getElementById(this.cvID + "thinking").style.visibility = "hidden"
+			}).bind(this),10)
+		}).bind(this)
 
         canvas.onmousemove = (evt) => {
             if (this.thinking) return;
