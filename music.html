@@ -470,76 +470,76 @@ async function sound() {
     
 	
 	
-	
-	
-instrumentGPU = gpu.createKernel(function(sampleRate, tone, rands, duration) {
+	instrumentGPU = gpu.createKernel(function(sampleRate, tone, rands, duration) {
     let freq = 440.0 * Math.pow(2.0, tone / 12.0);
     let t = this.thread.x / sampleRate;
+    let j = 0; // Pointer für das rands-Array
 
-    // 1. DER ANKER (Grundton)
+    // --- 1. DER SOUND-GENERATOR (Original-Logik) ---
     let originalSin = Math.sin(2.0 * Math.PI * freq * t);
-    
-    // 2. WÄRMERES MORPHING (Sigmoid)
     let m = t / (duration * 0.5); 
     if (m > 1.0) m = 1.0;
     let warmMorph = m * m * (3.0 - 2.0 * m); 
 
-    // 3. REKURSIVER PFAD (Die Textur)
     let y = 2.0 * Math.PI * freq * t;
-    let j = 0;
-    
-    // Wie viele Layer hat der Sound? (1-3)
     let n = Math.floor(3.0 * rands[j++]) + 1; 
 
     for (let i = 0; i < n; ++i) {
         let k = rands[j++];
-        
-        if (k < 0.12) {
-            y = Math.sin(y);
-        } else if (k < 0.24) {
-            y = Math.sin(y) >= 0 ? 1.0 : -1.0; // Square
-        } else if (k < 0.36) {
-            y = 2.0 * (y / (2.0 * Math.PI) - Math.floor(0.5 + y / (2.0 * Math.PI))); // Saw
-        } else if (k < 0.48) {
-// 1. Randomisierte LFO-Parameter aus dem rands-Array
-			const lfoSpeed = rands[j++] * 5.0 + 0.2; // Tempo: 0.2Hz bis 5.2Hz
-			const lfoCenter = rands[j++] * 5.0 + 1.0; // Mittelpunkt des Exponenten
-			const lfoDepth = rands[j++] * 5.0;        // Wie weit schwingt er aus?
-
-			// 2. Der LFO (Sinus-basiert)
-			const lfo = Math.sin(lfoSpeed * t * 6.283);
-			
-			// 3. Dynamischer Exponent (Center +/- Depth, mind. 0.1)
-			const dynExp = Math.abs(lfoCenter + lfo * lfoDepth) + 0.1;
-
-			// 4. Symmetrische Power-Welle
-			const s = Math.sin(y);
-			y = (s >= 0 ? 1.0 : -1.0) * Math.pow(Math.abs(s), dynExp);
+        if (k < 0.12) { y = Math.sin(y); } 
+        else if (k < 0.24) { y = Math.sin(y) >= 0 ? 1.0 : -1.0; } 
+        else if (k < 0.36) { y = 2.0 * (y / (2.0 * Math.PI) - Math.floor(0.5 + y / (2.0 * Math.PI))); } 
+        else if (k < 0.48) {
+            const lfoSpeed = rands[j++] * 5.0 + 0.2;
+            const lfoCenter = rands[j++] * 5.0 + 1.0;
+            const lfoDepth = rands[j++] * 5.0;
+            const lfo = Math.sin(lfoSpeed * t * 6.283);
+            const dynExp = Math.abs(lfoCenter + lfo * lfoDepth) + 0.1;
+            const s = Math.sin(y);
+            y = (s >= 0 ? 1.0 : -1.0) * Math.pow(Math.abs(s), dynExp);
         } else if (k < 0.60) {
-            y = Math.abs(4.0 * (y / (2.0 * Math.PI) - Math.floor(y / (2.0 * Math.PI) + 0.5))) - 1.0; // Triangle
+            y = Math.abs(4.0 * (y / (2.0 * Math.PI) - Math.floor(y / (2.0 * Math.PI) + 0.5))) - 1.0;
         } else if (k < 0.72) {
             let p = (y / (2.0 * Math.PI)) - Math.floor(y / (2.0 * Math.PI));
-            y = 8.0 * p * (1.0 - p) - 1.0; // Parabolic
+            y = 8.0 * p * (1.0 - p) - 1.0;
         } else if (k < 0.84) {
             let steps = Math.floor(rands[j++] * 12.0) + 4.0;
-            y = Math.floor(Math.sin(y) * steps) / steps; // Quantized
+            y = Math.floor(Math.sin(y) * steps) / steps;
         } else {
-            y = Math.atan(Math.tan(y * 0.2)); // Tangent Chirp
+            y = Math.atan(Math.tan(y * 0.2));
         }
-        
-        // Signal für die nächste Iteration vorbereiten (Amplitude/Phase Scale)
         y *= 1.5 * Math.PI; 
     }
     y /= 2.0 * Math.PI;
 
-    // --- MIX & GLUE ---
-    let textureGain = warmMorph * 0.4; // Etwas mehr Präsenz für die Textur
-    let mixedSignal = (originalSin * 0.7) + (y * textureGain);
-    
-    // Saturation-Glue (Soft Clipping)
-    mixedSignal = Math.atan(mixedSignal * 1.8);
+    let drySignal = (originalSin * 0.7) + (y * warmMorph * 0.4);
+    drySignal = Math.atan(drySignal * 1.8);
 
-    // --- DYNAMISCHER ATTACK ---
+    // --- 2. RANDOMISIERTER REVERB (MULTI-TAP) ---
+    let reverbSignal = 0.0;
+    
+    // Zufällige Reverb-Charakteristik pro Note
+    let numTaps = Math.floor(rands[j++] * 5.0) + 3.0; // 3 bis 8 Reflexionen
+    let roomSize = rands[j++] * 0.15 + 0.02;         // Streckung der Echos
+    let feedbackBase = rands[j++] * 0.4 + 0.3;       // Wie lange es nachhallt
+    let wetLevel = rands[j++] * 0.5;                 // Mix-Verhältnis (0% bis 50%)
+
+    for (let r = 1; r <= 8; r++) {
+        if (r > numTaps) break; // GPU-optimierte Schleife
+
+        // Jede Reflexion hat ein leicht anderes Delay, basierend auf rands
+        let tapDelay = (r * roomSize) * (0.8 + rands[(j + r) % 10] * 0.4);
+        let prevT = t - tapDelay;
+        
+        if (prevT > 0.0) {
+            // Vereinfachtes Echo-Signal berechnen
+            let echo = Math.sin(2.0 * Math.PI * freq * prevT);
+            // High-Cut Simulation: Höhere Taps verlieren an Kraft
+            reverbSignal += echo * Math.pow(feedbackBase, r);
+        }
+    }
+
+    // --- 3. DYNAMIK & ENVELOPES (Original-Logik) ---
     let amplitude = 1.0;
     let attackType = rands[j++]; 
     if (attackType < 0.5) {
@@ -549,18 +549,15 @@ instrumentGPU = gpu.createKernel(function(sampleRate, tone, rands, duration) {
         if (t < 0.002) amplitude = t / 0.002;
     }
 
-    // --- RELEASE ---
     if (rands[j++] < 0.5) {
-        // Logarithmischer/Sigmoid Release
         amplitude *= (Math.atan(-100.0 * (t - (duration - 0.05))) + (Math.PI / 2.0)) / Math.PI;
     } else {
-        // Exponential Decay
         amplitude *= Math.exp(-t / (duration * 0.4));
     }
 
     // --- FINAL MIX ---
-    // Der Grundton (Sinus) bleibt im Ausklang stabiler als die Textur
-    let finalSignal = (originalSin * 0.6) + (y * textureGain * amplitude);
+    // Das Reverb-Signal bekommt eine eigene kleine Dämpfung am Ende
+    let finalSignal = (drySignal * (1.0 - wetLevel)) + (reverbSignal * wetLevel * amplitude);
 
     return finalSignal * amplitude;
 }).setOutput([audioCtx.sampleRate]);
