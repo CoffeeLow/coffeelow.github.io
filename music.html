@@ -475,7 +475,7 @@ instrumentGPU = gpu.createKernel(function(sampleRate, tone, rands, duration) {
 
     // --- 1. WELLENFORM-WAHL (Feste Indizes für Konsistenz) ---
     // Index 0: Anzahl Layer
-    let n = Math.floor(3.0 * rands[0]) + 1; 
+    let n = Math.floor(3.0 * rands[0] * rands[0]) + 1; 
     let y = 2.0 * Math.PI * freq * t;
 
     for (let i = 0; i < n; ++i) {
