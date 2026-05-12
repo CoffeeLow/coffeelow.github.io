@@ -1,0 +1,208 @@
+<html>
+<head>
+<script>	
+	class Neuron {
+		constructor(inputNeurons) {
+			this.in = inputNeurons;
+			// Initialize with small random values between -0.1 and 0.1
+			this.ws = new Array(this.in.length).fill(0).map(() => (Math.random() - 0.5) * 0.2);
+			this.ws2 = new Array(this.in.length).fill(0);            
+			this.out = null;
+		}
+		/*
+		constructor(inputNeurons) {
+			this.in = inputNeurons
+			this.ws = new Array(this.in.length).fill(0)
+			this.ws2 = new Array(this.in.length).fill(0)			
+			this.out = null
+		}
+		*/
+		compute() {
+			if(this.out == null) {
+				this.out = 0
+				for(let i = 0;i < this.in.length;++i) this.out += this.in[i].compute() * this.ws[i]
+				this.out = (Math.atan(this.out) + Math.PI / 2) / Math.PI
+			}
+			return this.out
+		}
+		
+		rollback(){
+			this.ws = this.ws2.slice(0)
+		}
+		
+		backup() {
+			this.ws2 = this.ws.slice(0)
+		}
+	}
+
+	class BiasNeuron {
+		constructor() {
+		}
+		
+		compute() {
+			return 1
+		}
+	}
+	
+	class InputNeuron {
+		constructor() {
+			this.value = 0
+		}
+		
+		compute() {
+			return this.value
+		}
+	}
+	
+	class NeuralNet {
+		constructor(numIn,numOut,numHidden) {
+			this.inputNeurons = []
+			this.hiddenNeurons = []
+			this.outputNeurons = []
+			
+			for(let i = 0;i < numIn;++i) this.inputNeurons.push(new InputNeuron())
+			this.inputNeurons.push(new BiasNeuron())
+			for(let i = 0;i < numHidden;++i) this.hiddenNeurons.push(new Neuron(this.inputNeurons))
+			this.hiddenNeurons.push(new BiasNeuron())
+			for(let i = 0;i < numOut;++i) this.outputNeurons.push(new Neuron(this.hiddenNeurons))
+			
+			this.neurons = this.inputNeurons.concat(this.hiddenNeurons.concat(this.outputNeurons))
+			console.log(this.neurons)
+		}
+		
+		compute(xs) {
+			for(let i = 0;i < this.inputNeurons.length;++i) this.inputNeurons[i].value = 0
+		
+			let k = 0
+			for(let i = 0;i < numWords;++i) {
+				if(i < xs.length) {
+					for(let j = 0;j < numChars;++j) {
+						if(j < xs[i].length) {
+// Instead of / 256, let's stretch the alphabet across the 0-1 range
+							this.inputNeurons[k].value = (xs[i].charCodeAt(j) - 97) / 26;
+							//this.inputNeurons[k].value = xs[i].charCodeAt(j) / 256
+						}
+						k += 1
+					}
+				} 
+			}
+			//console.log(this.inputNeurons)
+
+			this.neurons.forEach((n) => {n.out = null})
+			let ys = []
+			this.outputNeurons.forEach((n) => {ys.push(n.compute())})
+			//console.log(ys)
+			let word = ""
+			ys.forEach(y => {word += String.fromCharCode(y * 256)})
+			return word
+		}
+	}
+	
+	const numWords = 10
+	const numChars = 10
+	
+	const nn = new NeuralNet(numWords * numChars,numChars,50)
+	let ws
+
+	function words(txt) {
+		let word = ""
+		let xs = []
+		
+		for(let i = 0;i < txt.length;++i) {
+			let c = txt.charAt(i).toLowerCase().replace(/[^a-zäöüß]/,"")
+			if(c.length == 1) {
+				word += c
+			} else if(word.length > 0) {
+				xs.push(word)
+				word = ""
+			}
+		}
+		
+		return xs
+	}
+	
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "grimmsmaerchen.txt", true);
+
+	xhr.onreadystatechange = function() {
+	  // Status 4 bedeutet "Operation abgeschlossen"
+	  if (xhr.readyState == 4 && xhr.status == 200) {
+		ws = words(xhr.responseText)	
+		//console.log(ws)
+		
+		let xs = words("In den alten Zeiten, wo das Wünschen noch geholfen hat,")
+		//console.log(
+		nn.compute(xs)
+		//)
+		
+		training()
+	  }
+	};
+
+	xhr.send();
+	
+	let learningRate = 0.001
+	let prevError = null
+	
+	function training() {
+		let error
+		for(let i = 0;i < 20;++i) {
+			nn.neurons.forEach(n => {
+				if(n.backup) n.backup()
+			})
+			error = 0
+			for(let j = 0;j < 100;++j) {
+				let k = Math.floor(Math.random() * (ws.length - 11))
+				let xs = ws.slice(k,k + 11)
+				let s = xs.join(" ")
+				//console.log(s)
+				let out = nn.compute(words(s))
+				for(let k = 0;k < out.length;++k) 
+					if(k < xs[10].length)
+						error += Math.pow(Math.abs(out.charCodeAt(k) - xs[10].charCodeAt(k)) / 256,2)
+					else
+						error += Math.pow(out.charCodeAt(k) / 256,2)
+			}
+			error /= 100
+			
+			nn.neurons.forEach(n => {
+				if(n.ws) {
+					for(j = 0;j < n.ws.length;++j) {
+						n.ws[j] += learningRate * (Math.random() - 0.5) * error 
+						if(n.ws[j] > 5) n.ws[j] = 5
+						if(n.ws[j] < -5) n.ws[j] = -5
+					}
+				}
+			})
+			
+			if(prevError == null) prevError = error
+			if(error > prevError) {
+				learningRate /= 1.001
+				nn.neurons.forEach(n => {
+					if(n.rollback) n.rollback()
+				})
+			} else {
+				learningRate *= 1.001
+				prevError = error
+			}
+	
+		}
+		
+	
+		console.log(learningRate)
+		console.log(prevError)
+		console.log(nn.outputNeurons[0].ws[0])
+				let k = Math.floor(Math.random() * (ws.length - 11))
+				let xs = ws.slice(k,k + 11)
+				let s = xs.join(" ")
+				//console.log(s)
+				let out = nn.compute(words(s))
+		console.log(s)
+		console.log(out)
+		window.setTimeout(training,10)
+	}
+</script>
+</head>
+<body>
+</body>
+</html>
